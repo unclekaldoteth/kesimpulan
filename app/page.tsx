@@ -121,20 +121,43 @@ export default function Home() {
     else showToast("Kurang tepat, coba lagi.", 'error');
   };
 
-  const handleShareResult = () => {
-    // 1. Ambil Topik dari hasil AI (biar nyambung)
-    const rawTopic = quizData?.summary || "topik menarik";
-    // Ambil kalimat pertama, max 50 karakter, hilangkan enter
-    const cleanTopic = rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
+    const handleShareResult = () => {
+    if (!quizData) return;
 
-    // 2. FORMAT BARU SESUAI REQUEST:
-    // "Baru aja dapet ringkasan dari Mini App: Kesimpulan tentang..."
-    const shareText = `Baru aja dapet ringkasan dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
+    // 1. Teks cast (seperti versi lama, tapi dirapikan sedikit)
+    const rawTopic = quizData.summary || "topik ini";
+    const cleanTopic =
+      rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
-    // 3. Link & Open
+    const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
+    const match = inputText.match(farcasterRegex);
+
+    let shareText = "";
+    if (match && match[2]) {
+      const username = match[2];
+      shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
+    } else {
+      shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
+    }
+
     const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
-    const embedUrl = "https://kesimpulan.vercel.app"; 
-    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${embedUrl}`);
+
+    // 2. Summary khusus untuk gambar (boleh lebih panjang)
+    const summaryForImage = (quizData.summary as string)
+      .replace(/\n/g, " ")
+      .slice(0, 200);
+
+    // 3. URL embed khusus share -> akan generate OG image dinamis
+    const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
+      summaryForImage
+    )}`;
+
+    // 4. Compose cast Warpcast
+    const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+      fullText
+    )}&embeds[]=${encodeURIComponent(embedUrl)}`;
+
+    sdk.actions.openUrl(composeUrl);
   };
 
   const handleTip = async (amountEth: string) => {
