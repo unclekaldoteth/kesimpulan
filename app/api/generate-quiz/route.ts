@@ -73,32 +73,32 @@ export async function POST(req: Request) {
     // --- 2. GEMINI DENGAN "ANTI-HALUSINASI" ---
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
+    let contentType = "Artikel";
+    if (url && (url.includes("warpcast") || url.includes("farcaster"))) contentType = "Cast";
+    else if (url && (url.includes("twitter") || url.includes("x.com"))) contentType = "Tweet";
+
     const prompt = `
-      Anda adalah AI Analyst yang jujur.
+      Anda adalah AI Tutor edukatif untuk pengguna Indonesia.
+
+      KONTEKS SUMBER: Ini adalah sebuah ${contentType}.
       
-      TEKS MASUKAN: 
-      "${contentToAnalyze.substring(0, 8000)}"
+      TEKS SUMBER: 
+      "${contentToAnalyze.substring(0, 6000)}"
 
-      TUGAS:
-      1. Cek apakah TEKS MASUKAN berisi konten nyata (artikel, opini, berita) ATAU hanya teks sampah (seperti "Login", "Sign Up", "Cookie Policy", "Javascript required", "Decentralized social network generic description").
-      2. JIKA TEKS SAMPAH/GENERIC: Kembalikan JSON error. Jangan mengarang ringkasan!
-      3. JIKA KONTEN NYATA: Buat ringkasan Bahasa Indonesia dan Diagram.
-
-      FORMAT OUTPUT (JSON):
-      Jika Konten Valid:
+      INSTRUKSI:
+      1. Pelajari TEKS SUMBER.
+      2. Buat Diagram Mermaid.js SANGAT SEDERHANA (Flowchart TD).
+      3. Buat Ringkasan. 
+         - PENTING: Jika sumber adalah 'Cast' atau 'Tweet', gunakan istilah tersebut dalam ringkasan (Jangan sebut 'Artikel').
+         - Contoh: "Cast dari @username ini membahas..." atau "Tweet ini menjelaskan..."
+      
+      FORMAT OUTPUT (JSON MURNI):
       {
-        "valid": true,
-        "summary": "Ringkasan padat 3 poin (Bahasa Indonesia)",
-        "mermaid_chart": "graph TD; A[Konsep 1] --> B[Konsep 2]; ... (Label Indonesia)",
-        "question": "Pertanyaan pemahaman (Indonesia)",
-        "options": ["A", "B", "C", "D"],
+        "summary": "Ringkasan 3 poin utama (Bahasa Indonesia, gunakan istilah ${contentType})",
+        "mermaid_chart": "graph TD; A[Mulai] --> B[Isi];", 
+        "question": "Satu pertanyaan pilihan ganda",
+        "options": ["Pilihan A", "Pilihan B", "Pilihan C", "Pilihan D"],
         "correctIndex": number
-      }
-
-      Jika Konten Tidak Valid / Gagal Baca:
-      {
-        "valid": false,
-        "error_msg": "Maaf, saya tidak bisa membaca isi link ini. Mungkin link privat atau hanya halaman login."
       }
     `;
 
