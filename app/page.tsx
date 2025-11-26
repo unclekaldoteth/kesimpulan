@@ -146,9 +146,26 @@ export default function Home() {
   };
 
   const handleShareResult = () => {
-    const topicSnippet = inputText.length > 50 ? inputText.substring(0, 50) + "..." : inputText;
-    const text = `Baru aja dapet ringkasan visual dari: "${topicSnippet}"\n\nHemat waktu banget! Cek ringkasan & tes pemahaman kamu di sini 👇`;
-    const embedUrl = "https://kesimpulan.vercel.app"; 
+    // 1. Bersihkan Teks: Kalau inputnya URL panjang, kita ambil domainnya aja biar rapi
+    let cleanSnippet = inputText;
+    try {
+        if (inputText.startsWith('http')) {
+            const urlObj = new URL(inputText);
+            cleanSnippet = urlObj.hostname + (urlObj.pathname.length > 1 ? "..." : "");
+        } else {
+            cleanSnippet = inputText.length > 40 ? inputText.substring(0, 40) + "..." : inputText;
+        }
+    } catch (e) { cleanSnippet = "Link"; }
+
+    // 2. Teks Viral
+    const text = `Baru aja dapet ringkasan visual dari: ${cleanSnippet}\n\nHemat waktu banget! Cek visualnya di sini 👇`;
+    
+    // 3. TRIK RAHASIA: Cache Buster
+    // Kita tambahkan waktu sekarang di belakang URL. 
+    // Ini memaksa Warpcast menganggap ini link "baru" dan memuat Metadata Mini App yg sudah bener.
+    const timestamp = Date.now();
+    const embedUrl = `https://kesimpulan.vercel.app/?t=${timestamp}`; 
+    
     sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${embedUrl}`);
   };
 

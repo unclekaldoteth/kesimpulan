@@ -38,12 +38,11 @@ export const metadata: Metadata = {
     "fc:frame:image": "https://kesimpulan.vercel.app/opengraph-image.png",
     "fc:frame:image:aspect_ratio": "1.91:1",
     
-    // Tombol Utama
-    "fc:frame:button:1": "Buka Kesimpulan",
+    // Tombol Launch
+    "fc:frame:button:1": "Buka App", // Ganti jadi Buka App biar jelas
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": "https://kesimpulan.vercel.app",
+    "fc:frame:button:1:target": "https://kesimpulan.vercel.app", // Harus match sama homeUrl
     
-    // LINK KE API ASLI (Bukan Home lagi)
     "fc:frame:post_url": "https://kesimpulan.vercel.app/api/webhook", 
   },
 };
