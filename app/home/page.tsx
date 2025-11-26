@@ -148,40 +148,36 @@ export default function Home() {
   const handleShareResult = () => {
     let shareText = "";
     
-    // LOGIKA PINTAR: Cek apakah ini link Warpcast?
-    // Pola link: https://warpcast.com/username/0x...
+    // LOGIKA PINTAR: Ambil nama topik/username SAJA, jangan Link-nya
     const farcasterRegex = /warpcast\.com\/([^\/]+)/;
     const match = inputText.match(farcasterRegex);
 
     if (match && match[1]) {
-        // SKENARIO 1: Kalau Link Warpcast
-        // match[1] adalah username (contoh: 'dwr.eth')
+        // Kalau link Warpcast, sebut username-nya
         const username = match[1];
-        // Ambil judul topik dari quizData.summary (baris pertama) atau judul yang di-scrape
-        // Biar aman, kita ambil 30 karakter pertama dari ringkasan sebagai "Topik"
         const topic = quizData?.summary 
             ? quizData.summary.split('.')[0].substring(0, 40) + "..." 
             : "topik menarik";
             
-        shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${topic}" ✨`;
+        shareText = `Baru aja dapet ringkasan visual cast @${username}: "${topic}" ✨`;
     } else {
-        // SKENARIO 2: Kalau Link Artikel Biasa / Teks
-        // Kita ambil domainnya atau potongan teks
+        // Kalau Link Artikel, ambil nama domainnya aja (bukan full link)
         let sourceName = "artikel ini";
         try {
             if (inputText.startsWith('http')) {
-                sourceName = new URL(inputText).hostname;
+                sourceName = new URL(inputText).hostname; // Cth: 'kompas.com'
             }
         } catch(e) {}
         
         shareText = `Baru aja dapet ringkasan visual dari ${sourceName} ✨`;
     }
 
-    // Tambahkan Call to Action (CTA)
+    // Caption Bersih (Tanpa HTTP Link di dalam teks)
     const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
     
-    // Cache Buster Link
-    const embedUrl = `https://kesimpulan.vercel.app/home?t=${Date.now()}`; 
+    // Link Frame (Ini yang bikin tombol muncul, tersembunyi di sistem)
+    const timestamp = Date.now();
+    const embedUrl = `https://kesimpulan.vercel.app/home?t=${timestamp}`; 
     
     sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${embedUrl}`);
   };
