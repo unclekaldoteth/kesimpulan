@@ -3,8 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import sdk from '@farcaster/miniapp-sdk';
 import { 
-  FileText, Trophy, User, Share2, Sparkles, 
-  Search, Wallet, CheckCircle, XCircle
+  Trophy, User, Sparkles, Share2, ArrowRight, Zap, CheckCircle, XCircle, Wallet
 } from 'lucide-react';
 import Mermaid from 'react-mermaid2';
 
@@ -56,7 +55,7 @@ export default function Home() {
       if (data.error) alert(data.error);
       else setQuizData(data);
     } catch (e) {
-      alert("Gagal memproses. Cek koneksi internet.");
+      alert("Gagal memproses.");
     } finally {
       setLoading(false);
     }
@@ -75,120 +74,148 @@ export default function Home() {
 
   const handleTip = () => { sdk.actions.openUrl("https://warpcast.com/unclekal"); };
 
+  // --- STYLE CONFIG (Neynar Aesthetic) ---
+  // Background hitam pekat dengan glow ungu di CSS body (nanti di globals.css)
+  // Tapi kita simulasikan di div wrapper
+  
   return (
-    <main className="min-h-screen bg-[#F2F2F6] font-sans pb-32 text-slate-900 selection:bg-purple-200">
+    <main className="min-h-screen bg-[#050505] font-sans pb-32 text-white selection:bg-orange-500/30 relative overflow-x-hidden">
       
-      {/* HEADER FIXED */}
-      <div className="fixed top-0 w-full z-50 bg-[#F2F2F6]/90 backdrop-blur-sm pt-6 pb-2 px-5 flex justify-between items-center border-b border-slate-200">
-         <h1 className="text-2xl font-bold tracking-tight text-[#1c1c1e]">
-            Kesimpulan
-         </h1>
-         
-         {/* --- FIX: PEMBUNGKUS GAMBAR BIAR GAK MELEDAK --- */}
-         <button onClick={() => setActiveTab('profile')} className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden border border-slate-200">
-             {userContext?.pfpUrl ? (
-                 <img 
-                    src={userContext.pfpUrl} 
-                    alt="pfp" 
-                    className="w-full h-full object-cover" 
-                    style={{width:'100%', height:'100%', objectFit:'cover'}} 
-                 />
-             ) : (
-                 <User size={18} className="text-slate-400"/>
-             )}
-         </button>
+      {/* BACKGROUND GLOW EFFECTS (Ambient Light) */}
+      <div className="fixed top-[-10%] left-[20%] w-[200px] h-[200px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="fixed top-[20%] right-[-10%] w-[150px] h-[150px] bg-blue-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+      {/* HEADER: Floating Glass */}
+      <div className="pt-6 px-4 sticky top-0 z-50">
+         <div className="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex justify-between items-center shadow-lg">
+             <div className="flex items-center gap-2">
+                {/* Logo Text dengan Gradient Neynar Style */}
+                <h1 className="text-lg font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+                    Kesimpulan.
+                </h1>
+             </div>
+             {/* Profil Kecil (Dikunci Ukuran) */}
+             <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-full bg-[#222] flex items-center justify-center overflow-hidden border border-white/10" style={{width:'32px', height:'32px', minWidth:'32px'}}>
+                 {userContext?.pfpUrl ? (
+                     <img src={userContext.pfpUrl} alt="pfp" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                 ) : (
+                     <User size={16} className="text-gray-400"/>
+                 )}
+             </button>
+         </div>
       </div>
 
-      {/* CONTAINER DENGAN PADDING ATAS (BIAR GAK KETUTUP HEADER) */}
-      <div className="pt-24 px-4 max-w-md mx-auto">
+      <div className="px-4 pt-6 max-w-md mx-auto space-y-6 relative z-10">
         
         {/* === TAB 1: HOME / QUIZ === */}
         {activeTab === 'quiz' && (
-          <div className="space-y-4 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-in fade-in duration-500">
             {!quizData ? (
                 <>
-                   {/* Greeting Card */}
-                   <div className="bg-white p-5 rounded-[20px] shadow-sm flex items-center gap-4">
-                      <div className="w-14 h-14 min-w-[56px] bg-purple-100 rounded-full flex items-center justify-center text-[#6a61e3]">
-                         <Sparkles size={24} strokeWidth={2.5}/>
-                      </div>
-                      <div className="overflow-hidden">
-                         <h2 className="text-lg font-bold text-slate-800 truncate">Halo, {userContext?.username || "Guest"}!</h2>
-                         <p className="text-xs text-slate-500 truncate">Apa yang mau diringkas hari ini?</p>
+                   {/* Main Hero Card */}
+                   <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-1 relative overflow-hidden group">
+                      {/* Border Gradient Halus saat Hover/Active */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-50 pointer-events-none"></div>
+                      
+                      <div className="bg-[#0f0f0f] rounded-[20px] p-6 space-y-5 relative z-10">
+                          <div className="text-center space-y-2">
+                             <h2 className="text-2xl font-bold text-white">Ringkas Apapun.</h2>
+                             <p className="text-sm text-gray-400 leading-relaxed">
+                                Tempel link artikel atau Cast.<br/>Dapatkan visualisasi dalam hitungan detik.
+                             </p>
+                          </div>
+
+                          {/* Input Field Dark */}
+                          <div className="relative">
+                            <textarea 
+                                className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl p-4 text-[15px] text-white placeholder-gray-600 outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all h-32 resize-none"
+                                placeholder="Tempel link (https://...) di sini..."
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                            />
+                          </div>
+
+                          {/* Tombol Utama (Gradient Neynar) */}
+                          <button 
+                            onClick={handleGenerate}
+                            disabled={loading || !inputText}
+                            className={`w-full py-4 rounded-xl font-bold text-white shadow-lg shadow-orange-900/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2 ${
+                                loading 
+                                ? 'bg-[#222] text-gray-500 cursor-not-allowed' 
+                                : 'bg-gradient-to-r from-orange-500 to-red-500 hover:brightness-110'
+                            }`}
+                          >
+                            {loading ? <Sparkles className="animate-spin" size={20}/> : "Check Kesimpulan"}
+                            {!loading && <ArrowRight size={20}/>}
+                          </button>
                       </div>
                    </div>
 
-                   {/* Input Area */}
-                   <div className="bg-white p-4 rounded-[24px] shadow-sm">
-                      <div className="flex items-center gap-2 bg-[#F2F2F6] rounded-xl px-3 py-2 mb-3">
-                          <Search size={16} className="text-slate-400"/>
-                          <input 
-                             type="text"
-                             className="bg-transparent w-full outline-none text-sm py-1 placeholder:text-slate-400 text-slate-800"
-                             placeholder="Tempel link artikel..."
-                             value={inputText}
-                             onChange={(e) => setInputText(e.target.value)}
-                          />
-                          {inputText && <button onClick={() => setInputText("")}><XCircle size={16} className="text-slate-400"/></button>}
+                   {/* Support Card */}
+                   <div className="bg-[#0f0f0f] border border-white/5 rounded-2xl p-5 text-center space-y-4">
+                      <div>
+                          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Support Developer</p>
+                          <p className="text-xs text-gray-400">Bantu server tetap hidup dengan tip kecil.</p>
                       </div>
                       
-                      <textarea 
-                        className="w-full p-2 bg-transparent outline-none h-24 text-sm text-slate-700 resize-none"
-                        placeholder="Atau tempel teks panjang di sini..."
-                        value={inputText}
-                        onChange={(e) => setInputText(e.target.value)}
-                      />
+                      <div className="grid grid-cols-2 gap-3">
+                          <button onClick={() => sdk.actions.openUrl("https://warpcast.com/unclekal")} className="py-3 bg-[#1a1a1a] hover:bg-[#222] rounded-xl text-xs font-bold text-white border border-white/10 transition-colors">
+                              Follow
+                          </button>
+                          <button onClick={handleTip} className="py-3 bg-[#1a1a1a] hover:bg-[#222] rounded-xl text-xs font-bold text-white border border-white/10 transition-colors flex justify-center items-center gap-1">
+                              Tip <span className="text-red-500">❤️</span>
+                          </button>
+                      </div>
                    </div>
-                  
-                  <button 
-                    onClick={handleGenerate}
-                    disabled={loading || !inputText}
-                    className={`w-full py-4 rounded-[18px] font-bold text-white flex justify-center items-center gap-2 shadow-lg shadow-purple-200 transition-all active:scale-[0.98] ${
-                        loading ? 'bg-slate-300' : 'bg-[#6a61e3]'
-                    }`}
-                  >
-                    {loading ? <Sparkles className="animate-spin" size={20}/> : "Buat Ringkasan"}
-                  </button>
                 </>
             ) : (
                 // --- RESULT VIEW ---
-                <div className="space-y-4 animate-in slide-in-from-bottom-4">
+                <div className="space-y-6 animate-in slide-in-from-bottom-4">
                     
-                    {/* Mermaid Chart Card */}
-                    <div className="bg-white rounded-[24px] shadow-sm overflow-hidden">
-                         <div className="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                             <div className="text-xs font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wide">
-                                <Share2 size={12} /> Visual Map
+                    {/* Visual Map (White bg agar kontras & jelas) */}
+                    <div className="bg-white rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                         <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                             <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                                <Share2 size={12} className="text-orange-500"/> Alur Pikir
                              </div>
                          </div>
-                        <div className="p-4 flex justify-center bg-white overflow-x-auto">
-                           <div className="mermaid-container w-full flex justify-center text-xs font-bold text-slate-800">
+                        <div className="p-6 flex justify-center bg-white items-center">
+                           <div className="mermaid-container text-black w-full flex justify-center text-xs font-bold">
                                <Mermaid chart={quizData.mermaid_chart} />
                            </div>
                         </div>
                     </div>
 
                     {/* Summary Card */}
-                    <div className="bg-white p-6 rounded-[24px] shadow-sm">
-                        <h3 className="text-sm font-bold text-[#1c1c1e] mb-2">Intisari</h3>
-                        <p className="text-[15px] leading-7 text-[#1c1c1e] whitespace-pre-line">
+                    <div className="bg-[#111] border border-white/10 rounded-2xl p-6 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-orange-500 to-red-500"></div>
+                        <h3 className="text-xs font-bold text-gray-400 mb-4 uppercase tracking-widest">Intisari Materi</h3>
+                        <p className="text-[15px] leading-7 text-gray-200 whitespace-pre-line font-medium">
                            {quizData.summary}
                         </p>
                     </div>
 
                     {/* Quiz Section */}
-                    <div className="bg-white p-6 rounded-[24px] shadow-sm">
-                        <h3 className="font-bold text-lg mb-5 text-slate-900">{quizData.question}</h3>
-                        <div className="space-y-2.5">
+                    <div className="bg-[#111] border border-white/10 rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-5">
+                            <div className="bg-yellow-500/20 p-1.5 rounded-lg text-yellow-500">
+                                <Zap size={16}/>
+                            </div>
+                            <h3 className="text-sm font-bold text-white">Cek Pemahaman</h3>
+                        </div>
+                        
+                        <h3 className="font-bold text-lg mb-6 text-white leading-snug">{quizData.question}</h3>
+                        
+                        <div className="space-y-3">
                             {quizData.options.map((opt: string, idx: number) => (
                                 <button
                                     key={idx}
                                     disabled={selectedOption !== null}
                                     onClick={() => handleAnswer(idx)}
-                                    className={`w-full p-4 rounded-[16px] text-left text-[14px] font-medium border transition-all flex justify-between items-center ${
+                                    className={`w-full p-4 rounded-xl text-left text-[14px] font-medium border transition-all flex justify-between items-center ${
                                         selectedOption === idx 
-                                        ? (isCorrect ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700')
-                                        : 'bg-slate-50 border-transparent text-slate-600 active:bg-slate-100'
+                                        ? (isCorrect ? 'bg-green-500/10 border-green-500 text-green-400' : 'bg-red-500/10 border-red-500 text-red-400')
+                                        : 'bg-[#1a1a1a] border-white/5 text-gray-300 hover:border-white/20'
                                     }`}
                                 >
                                     <span>{opt}</span>
@@ -198,9 +225,18 @@ export default function Home() {
                         </div>
                     </div>
 
+                    {isCorrect && (
+                        <button 
+                            onClick={handleShareResult}
+                            className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg shadow-green-900/20 flex justify-center items-center gap-2 animate-pulse"
+                        >
+                            <Share2 size={18} /> Bagikan Hasil
+                        </button>
+                    )}
+
                     <button 
                         onClick={() => { setQuizData(null); setInputText(""); }}
-                        className="w-full py-4 text-sm font-bold text-[#8e8e93] bg-white rounded-[18px] shadow-sm"
+                        className="w-full py-4 rounded-xl text-sm font-bold text-gray-500 hover:text-white transition-colors bg-[#111] border border-white/5"
                     >
                         Mulai Baru
                     </button>
@@ -211,47 +247,61 @@ export default function Home() {
 
         {/* === TAB 2: LEADERBOARD === */}
         {activeTab === 'leaderboard' && (
-             <div className="space-y-4 animate-in fade-in">
-                <div className="bg-white p-5 rounded-[20px] shadow-sm flex items-center justify-between">
-                    <div>
-                        <p className="text-xs text-slate-400 font-bold uppercase mb-1">Komunitas</p>
-                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">/base</h2>
+             <div className="space-y-6 animate-in fade-in">
+                <div className="bg-[#111] border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden">
+                    {/* Glow effect di belakang angka */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-orange-500/10 rounded-full blur-[60px]"></div>
+                    
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-2 relative z-10">Komunitas Terpintar</p>
+                    <h2 className="text-4xl font-black text-white tracking-tighter relative z-10">/base</h2>
+                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 font-mono relative z-10">
+                        <Trophy size={12} className="text-yellow-500"/> 14,203 Pts
                     </div>
-                    <Trophy size={32} className="text-yellow-500 drop-shadow-sm" />
+                </div>
+                
+                <div className="text-center py-8">
+                    <p className="text-sm text-gray-600">Leaderboard global akan segera hadir.</p>
                 </div>
              </div>
         )}
 
         {/* === TAB 3: PROFIL === */}
         {activeTab === 'profile' && (
-            <div className="space-y-5 animate-in fade-in">
-                <div className="bg-white p-6 rounded-[24px] shadow-sm text-center relative overflow-hidden">
-                    <div className="w-24 h-24 bg-slate-100 rounded-full mx-auto mb-3 overflow-hidden border-4 border-slate-50">
+            <div className="space-y-6 animate-in fade-in">
+                <div className="bg-[#111] border border-white/10 rounded-3xl p-8 text-center">
+                    <div className="w-24 h-24 bg-[#1a1a1a] rounded-full mx-auto mb-5 overflow-hidden border-4 border-[#222] flex items-center justify-center relative">
                         {userContext?.pfpUrl ? (
-                            <img 
-                                src={userContext.pfpUrl} 
-                                alt="pfp" 
-                                className="w-full h-full object-cover" 
-                                style={{width:'100%', height:'100%', objectFit:'cover'}}
-                            />
+                            <img src={userContext.pfpUrl} alt="pfp" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                         ) : (
-                            <User className="w-full h-full p-6 text-slate-300"/>
+                            <User size={40} className="text-gray-600"/>
                         )}
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900">@{userContext?.username || "Guest"}</h2>
+                    <h2 className="text-2xl font-bold text-white mb-1">@{userContext?.username || "Guest"}</h2>
+                    <p className="text-sm text-gray-500 mb-6">Level 1 Reader</p>
                     
                      <button 
                         onClick={handleAddFrame}
                         disabled={isFrameAdded}
-                        className={`mt-4 px-6 py-2 rounded-full text-xs font-bold border transition-all ${isFrameAdded ? 'bg-green-50 text-green-600 border-green-200' : 'bg-[#6a61e3] text-white border-transparent'}`}
+                        className={`w-full py-3 rounded-xl text-sm font-bold border transition-all ${isFrameAdded ? 'bg-green-500/10 border-green-500 text-green-500' : 'bg-white text-black border-white hover:bg-gray-200'}`}
                     >
                         {isFrameAdded ? "Notifikasi Aktif" : "Aktifkan Notifikasi"}
                     </button>
                 </div>
                 
-                <div className="space-y-2">
-                    <button onClick={handleTip} className="bg-[#6a61e3] w-full p-4 rounded-[18px] flex items-center justify-between text-white shadow-lg shadow-indigo-200">
-                        <div className="flex items-center gap-3"><Wallet size={20} /><span className="font-bold text-sm">Tip 1 USDC</span></div>
+                <div className="space-y-3">
+                    <button onClick={handleTip} className="w-full p-4 flex items-center justify-between bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-2xl transition-colors group">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-blue-500/20 p-2.5 rounded-xl text-blue-400"><Wallet size={20} /></div>
+                            <span className="font-bold text-sm text-gray-200">Tip 1 USDC</span>
+                        </div>
+                        <ArrowRight size={18} className="text-gray-600 group-hover:text-white transition-colors"/>
+                    </button>
+                    <button onClick={handleTip} className="w-full p-4 flex items-center justify-between bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-2xl transition-colors group">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-purple-500/20 p-2.5 rounded-xl text-purple-400"><Sparkles size={20} /></div>
+                            <span className="font-bold text-sm text-gray-200">Tip 5 USDC</span>
+                        </div>
+                        <ArrowRight size={18} className="text-gray-600 group-hover:text-white transition-colors"/>
                     </button>
                 </div>
             </div>
@@ -259,19 +309,19 @@ export default function Home() {
 
       </div>
 
-      {/* BOTTOM NAV */}
-      <nav className="fixed bottom-0 w-full bg-white border-t border-slate-100 py-2 px-6 pb-6 z-40 flex justify-around">
-            <button onClick={() => setActiveTab('quiz')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'quiz' ? 'text-[#6a61e3]' : 'text-slate-400'}`}>
-                <FileText size={24} strokeWidth={activeTab === 'quiz' ? 2.5 : 2}/>
-                <span className="text-[10px] font-bold">Ringkas</span>
+      {/* BOTTOM NAV: Glassmorphism Fixed */}
+      <nav className="fixed bottom-0 w-full bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 py-2 px-6 pb-6 z-40 flex justify-around">
+            <button onClick={() => setActiveTab('quiz')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'quiz' ? 'text-orange-500' : 'text-gray-600 hover:text-gray-400'}`}>
+                <Sparkles size={24} strokeWidth={activeTab === 'quiz' ? 2.5 : 2}/>
+                <span className="text-[10px] font-bold mt-1">Home</span>
             </button>
-            <button onClick={() => setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'leaderboard' ? 'text-[#6a61e3]' : 'text-slate-400'}`}>
+            <button onClick={() => setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'leaderboard' ? 'text-orange-500' : 'text-gray-600 hover:text-gray-400'}`}>
                 <Trophy size={24} strokeWidth={activeTab === 'leaderboard' ? 2.5 : 2}/>
-                <span className="text-[10px] font-bold">Top</span>
+                <span className="text-[10px] font-bold mt-1">Rank</span>
             </button>
-            <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'profile' ? 'text-[#6a61e3]' : 'text-slate-400'}`}>
+            <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'profile' ? 'text-orange-500' : 'text-gray-600 hover:text-gray-400'}`}>
                 <User size={24} strokeWidth={activeTab === 'profile' ? 2.5 : 2}/>
-                <span className="text-[10px] font-bold">Profil</span>
+                <span className="text-[10px] font-bold mt-1">Me</span>
             </button>
       </nav>
 
