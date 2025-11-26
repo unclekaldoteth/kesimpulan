@@ -14,7 +14,7 @@ export async function GET() {
       version: "1",
       name: "Kesimpulan",
       iconUrl: `${appUrl}/icon.png`,
-      homeUrl: "https://kesimpulan.vercel.app/home",
+      homeUrl: appUrl,
       imageUrl: `${appUrl}/opengraph-image.png`,
       buttonTitle: "Buat Ringkasan",
       splashImageUrl: `${appUrl}/icon.png`,

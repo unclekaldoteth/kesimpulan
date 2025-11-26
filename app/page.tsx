@@ -156,7 +156,7 @@ export default function Home() {
         // Kalau link Warpcast, sebut username-nya
         const username = match[1];
         const topic = quizData?.summary 
-            ? quizData.summary.split('.')[0].substring(0, 40) + "..." 
+            ? quizData.summary.split('.')[0].substring(0, 50) 
             : "topik menarik";
             
         shareText = `Baru aja dapet ringkasan visual cast @${username}: "${topic}" ✨`;
@@ -174,10 +174,7 @@ export default function Home() {
 
     // Caption Bersih (Tanpa HTTP Link di dalam teks)
     const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
-    
-    // Link Frame (Ini yang bikin tombol muncul, tersembunyi di sistem)
-    const timestamp = Date.now();
-    const embedUrl = `https://kesimpulan.vercel.app/home?t=${timestamp}`; 
+    const embedUrl = `https://kesimpulan.vercel.app}`; 
     
     sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${embedUrl}`);
   };

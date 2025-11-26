@@ -12,18 +12,18 @@ const inter = Inter({
 const appUrl = "https://kesimpulan.vercel.app";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: new URL("https://kesimpulan.vercel.app"),
   title: "Kesimpulan",
   description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir & kuis instan.",
   
   openGraph: {
-    title: "Kesimpulan - Ringkas Apapun Jadi Visual",
-    description: "Tempel link, dapatkan diagram alur dan kuis pemahaman dalam hitungan detik.",
-    url: appUrl,
+    title: "Kesimpulan",
+    description: "Ringkas artikel panjang jadi visual & kuis.",
+    url: "https://kesimpulan.vercel.app",
     siteName: "Kesimpulan",
     images: [
       {
-        url: `${appUrl}/opengraph-image.png`,
+        url: "https://kesimpulan.vercel.app/opengraph-image.png",
         width: 1200,
         height: 630,
         alt: "Kesimpulan Preview",
@@ -38,12 +38,12 @@ export const metadata: Metadata = {
     "fc:frame:image": "https://kesimpulan.vercel.app/opengraph-image.png",
     "fc:frame:image:aspect_ratio": "1.91:1",
     
-    // Tombol Launch
-    "fc:frame:button:1": "Buka App", // Ganti jadi Buka App biar jelas
+    // Tombol Utama
+    "fc:frame:button:1": "Buka App",
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": "https://kesimpulan.vercel.app/home", // Harus match sama homeUrl
+    "fc:frame:button:1:target": "https://kesimpulan.vercel.app", // <--- JANGAN LUPA KOMA DI SINI
     
-    "fc:frame:post_url": "https://kesimpulan.vercel.app/api/webhook", 
+    "fc:frame:post_url": "https://kesimpulan.vercel.app/api/webhook" // <--- INI BARIS TERAKHIR (Boleh gak pake koma, tapi pake aja biar aman)
   },
 };
 
