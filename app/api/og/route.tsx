@@ -52,7 +52,6 @@ export async function GET(req: NextRequest) {
 
           {/* Footer */}
           <p style={{ position: 'absolute', bottom: 30, fontSize: 20, color: '#666' }}>
-            Powered by AI • Farcaster Mini App
           </p>
         </div>
       ),

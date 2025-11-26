@@ -1,83 +1,49 @@
-import type { Metadata } from "next";
+import { Metadata } from 'next';
+import Home from '../page'; // Kita reuse tampilan Home biar gak kerja 2x
 
-const APP_URL = "https://kesimpulan.vercel.app";
-
-type SharePageProps = {
-  searchParams?: {
-    summary?: string;
-  };
-};
-
-function normalizeSummary(searchParams?: { summary?: string }) {
-  const raw = searchParams?.summary || "Ringkas artikel & Cast jadi visual instan.";
-  // Biar aman, potong maksimal 200 karakter (match sama api/og)
-  return raw.slice(0, 200);
+type Props = {
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export async function generateMetadata(
-  { searchParams }: SharePageProps
-): Promise<Metadata> {
-  const summary = normalizeSummary(searchParams);
-  const ogImageUrl = `${APP_URL}/api/og?summary=${encodeURIComponent(summary)}`;
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const appUrl = "https://kesimpulan.vercel.app";
+  
+  // 1. Ambil teks summary dari URL
+  const summary = searchParams.summary as string || "Ringkasan visual instan.";
+  
+  // 2. Bikin URL Gambar Dinamis (ini manggil api/og yang lu kasih)
+  const imageUrl = `${appUrl}/api/og?summary=${encodeURIComponent(summary)}`;
 
-  // Mini App embed khusus halaman share
-  const frame = {
+  // 3. Config Frame v2 (JSON Blob)
+  const frameConfig = {
     version: "next",
-    imageUrl: ogImageUrl, // <- ini yang bakal jadi gambar di card
+    imageUrl: imageUrl, // <--- GAMBARNYA JADI DINAMIS DISINI
     button: {
-      title: "Buat Kesimpulan",
+      title: "Buka Ringkasan",
       action: {
         type: "launch_frame",
         name: "Kesimpulan",
-        url: APP_URL, // buka mini app utama
-        splashImageUrl: `${APP_URL}/icon.png`,
+        url: appUrl,
+        splashImageUrl: `${appUrl}/icon.png`,
         splashBackgroundColor: "#000000",
       },
     },
   };
 
   return {
-    title: "Kesimpulan",
-    description: summary,
+    title: "Kesimpulan: " + summary.substring(0, 50),
     openGraph: {
-      title: "Kesimpulan",
+      title: "Kesimpulan Visual",
       description: summary,
-      url: APP_URL,
-      siteName: "Kesimpulan",
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: "Kesimpulan Preview",
-        },
-      ],
-      locale: "id_ID",
-      type: "website",
+      images: [imageUrl],
     },
     other: {
-      // Untuk Mini App embed
-      "fc:frame": JSON.stringify(frame),
-      // Opsional, tapi sesuai spec baru Mini App
-      "fc:miniapp": JSON.stringify(frame),
+      "fc:frame": JSON.stringify(frameConfig),
     },
   };
 }
 
-export default function SharePage({ searchParams }: SharePageProps) {
-  const summary = normalizeSummary(searchParams);
-
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-black text-white">
-      <div className="max-w-xl px-4 text-center space-y-4">
-        <h1 className="text-3xl font-extrabold">Kesimpulan.</h1>
-        <p className="text-sm text-slate-200 whitespace-pre-line">
-          {summary}
-        </p>
-        <p className="text-[11px] text-slate-400">
-          Dibuat otomatis oleh Mini App Kesimpulan di Farcaster.
-        </p>
-      </div>
-    </main>
-  );
+// Tampilkan halaman Home biasa (User gak ngerasa bedanya)
+export default function SharePage() {
+  return <Home />;
 }

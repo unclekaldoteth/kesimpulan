@@ -122,49 +122,34 @@ export default function Home() {
   };
 
         const handleShareResult = (data: any) => {
-    if (!data) {
-      showToast("Belum ada ringkasan untuk dibagikan.", "error");
-      return;
-    }
+    if (!data) return;
 
-    // 1. Ambil topik dari summary
-    const rawTopic: string = data.summary || "topik ini";
-    const cleanTopic =
-      rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
+    // 1. Siapkan Teks Caption (Buat pancingan di feed)
+    const rawTopic = data.summary || "topik ini";
+    const cleanTopic = rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
+    
+    // 2. Siapkan Teks Gambar (Buat dilukis di OG Image)
+    // Kita potong max 180 karakter biar gambarnya gak penuh sesak
+    const summaryForImage = rawTopic.replace(/\n/g, " ").substring(0, 180);
 
-    // 2. Deteksi apakah input adalah link cast Warpcast / Farcaster
+    // 3. Deteksi Username (Opsional, kayak tadi)
     const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
     const match = inputText.match(farcasterRegex);
-
     let shareText = "";
+    
     if (match && match[2]) {
-      // contoh: https://warpcast.com/unclekal.eth/0x12345 → username = unclekal.eth
-      const username = match[2];
-      shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
+        shareText = `Baru aja dapet ringkasan visual cast @${match[2]}: "${cleanTopic}" ✨`;
     } else {
-      shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
+        shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
     }
 
-    const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
+    const fullText = `${shareText}\n\nCek ringkasan lengkapnya di gambar 👇`;
 
-    // 3. Summary khusus buat gambar (dipotong biar nggak kepanjangan)
-    const summaryForImage = (data.summary as string)
-      .replace(/\n/g, " ")
-      .slice(0, 200);
+    // 4. RAKIT URL SHARE (Arahkan ke /share dengan parameter summary)
+    const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(summaryForImage)}`;
 
-    // 4. Embed URL ke halaman /share → di situ OG image & frame sudah dinamis
-    const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
-      summaryForImage
-    )}`;
-
-    const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
-      fullText
-    )}&embeds[]=${encodeURIComponent(embedUrl)}`;
-
-    sdk.actions.openUrl(composeUrl);
+    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`);
   };
-
-
 
   const handleTip = async (amountEth: string) => {
     const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; 
