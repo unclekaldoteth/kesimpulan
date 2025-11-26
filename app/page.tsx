@@ -22,17 +22,33 @@ export default function Home() {
   const [userContext, setUserContext] = useState<any>(null);
   const [isFrameAdded, setIsFrameAdded] = useState(false);
 
+  // --- INIT FARCASTER ---
   useEffect(() => {
-    const load = async () => {
-      await sdk.actions.ready();
+    const initialize = async () => {
       try {
+        // 1. Kasih log biar kita tau ini jalan di Inspect Element
+        console.log("Mencoba inisialisasi Frame...");
+        
+        // 2. Panggil ready() DULUAN sebelum loading data lain
+        // Ini perintah wajib biar splash screen ilang
+        await sdk.actions.ready();
+        console.log("Frame Ready! Splash screen harusnya hilang.");
+
+        // 3. Baru ambil data user
         const context = await sdk.context;
-        if (context?.user) setUserContext(context.user);
+        if (context?.user) {
+            console.log("User terdeteksi:", context.user.username);
+            setUserContext(context.user);
+        } else {
+            console.log("User context kosong (mungkin di browser biasa)");
+        }
       } catch (e) {
-        console.error("Context Error", e);
+        // Kalau error, catat di console tapi JANGAN biarkan app crash
+        console.error("Gagal inisialisasi Farcaster:", e);
       }
     };
-    load();
+
+    initialize();
   }, []);
 
   const handleAddFrame = useCallback(async () => {
