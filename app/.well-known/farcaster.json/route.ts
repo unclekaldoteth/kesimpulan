@@ -16,24 +16,24 @@ export async function GET() {
       iconUrl: `${appUrl}/icon.png`,
       homeUrl: appUrl,
       imageUrl: `${appUrl}/opengraph-image.png`,
-      buttonTitle: "Buat Ringkasan",
+      buttonTitle: "Buka App",
       splashImageUrl: `${appUrl}/icon.png`,
       splashBackgroundColor: "#000000",
       webhookUrl: `${appUrl}/api/webhook`,
-      subtitle: "Ringkasan Visual Instan",
+      
+      // Metadata lain...
       tagline: "Lebih Cepat Paham",
-      primaryCategory: "productivity",
-      heroImageUrl: `${appUrl}/opengraph-image.png`,
-      screenshotUrls: [
-        `${appUrl}/tampilan-app.png` 
-      ],
-      description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir (Mermaid) dan kuis interaktif dalam hitungan detik. Didukung oleh AI.",
-      castShareUrl: appUrl,
-      keywords: ["ai", "summary", "education", "productivity", "indonesia", "reading"],
+      description: "Ringkasan visual instan.",
+      
+      // 👇 INI KUNCINYA 👇
       triggers: [
         { 
           type: "share", 
-          action: { type: "launch_frame", name: "Ringkas Ini", url: appUrl } 
+          action: { 
+            type: "launch_frame", 
+            name: "Buat Kesimpulan", // Nama menu yang muncul saat klik Share
+            url: appUrl 
+          } 
         }
       ]
     }
