@@ -1,6 +1,5 @@
-module.exports = {
+export default {
   plugins: {
-    '@tailwindcss/postcss': {}, // <--- PAKE TANDA KUTIP & ADA @
-    autoprefixer: {},
+    '@tailwindcss/postcss': {},
   },
-}
+};
