@@ -14,7 +14,7 @@ const appUrl = "https://kesimpulan.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL("https://kesimpulan.vercel.app"),
   title: "Kesimpulan",
-  description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir & kuis instan.",
+  description: "Ringkas artikel panjang jadi visual alur pikir & kuis instan.",
   
   openGraph: {
     title: "Kesimpulan",
@@ -33,17 +33,18 @@ export const metadata: Metadata = {
     type: "website",
   },
   
+  // --- METADATA FRAME BERSIH ---
   other: {
     "fc:frame": "vNext",
     "fc:frame:image": "https://kesimpulan.vercel.app/opengraph-image.png",
-    "fc:frame:image:aspect_ratio": "1.91:1",
+    "fc:frame:image:aspect_ratio": "1.91:1", // Pastikan gambar lu Landscape
     
-    // Tombol Utama
+    // Cuma satu tombol: Buka App
     "fc:frame:button:1": "Buka App",
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": "https://kesimpulan.vercel.app", // <--- JANGAN LUPA KOMA DI SINI
+    "fc:frame:button:1:target": "https://kesimpulan.vercel.app",
     
-    "fc:frame:post_url": "https://kesimpulan.vercel.app/api/webhook" // <--- INI BARIS TERAKHIR (Boleh gak pake koma, tapi pake aja biar aman)
+    // HAPUS post_url BIAR TIDAK KONFLIK
   },
 };
 
