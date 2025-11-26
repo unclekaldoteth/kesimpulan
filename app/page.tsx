@@ -350,15 +350,24 @@ export default function Home() {
                         <h3 className="text-sm font-bold text-white">Support Creator</h3>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-3">
-                        <button onClick={() => handleTip('1')} className="bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-xl p-4 flex flex-col items-center gap-2 transition-all active:scale-95">
-                            <Wallet size={20} className="text-blue-400"/>
-                            <span className="text-xs font-bold text-white">Tip ~ $1</span>
+                    <div className="flex flex-col gap-3">
+                        {/* TOMBOL FOLLOW (BARU DITAMBAHKAN) */}
+                        <button onClick={() => sdk.actions.openUrl("https://warpcast.com/unclekal")} className="w-full py-3 bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 group">
+                            <User size={18} className="text-blue-400 group-hover:scale-110 transition-transform"/>
+                            <span className="text-sm font-bold text-white">Follow @unclekal</span>
                         </button>
-                        <button onClick={() => handleTip('5')} className="bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-xl p-4 flex flex-col items-center gap-2 transition-all active:scale-95">
-                            <Sparkles size={20} className="text-yellow-400"/>
-                            <span className="text-xs font-bold text-white">Tip ~ $5</span>
-                        </button>
+
+                        {/* GRID TOMBOL TIP */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <button onClick={() => handleTip('1')} className="bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-xl p-4 flex flex-col items-center gap-2 transition-all active:scale-95 group">
+                                <Wallet size={20} className="text-blue-400 group-hover:rotate-12 transition-transform"/>
+                                <span className="text-xs font-bold text-white">Tip ~ $1</span>
+                            </button>
+                            <button onClick={() => handleTip('5')} className="bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-xl p-4 flex flex-col items-center gap-2 transition-all active:scale-95 group">
+                                <Sparkles size={20} className="text-yellow-400 group-hover:rotate-12 transition-transform"/>
+                                <span className="text-xs font-bold text-white">Tip ~ $5</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
