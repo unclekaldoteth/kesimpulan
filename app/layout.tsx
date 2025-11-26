@@ -8,39 +8,45 @@ const inter = Inter({
   variable: '--font-inter', 
 });
 
-// --- METADATA LENGKAP (PENTING BUAT PREVIEW) ---
+// URL APLIKASI LU (Ganti kalau beda, tapi kayaknya udah bener ini)
+const appUrl = "https://kesimpulan.vercel.app";
+
 export const metadata: Metadata = {
-  // Base URL wajib biar gambar opengraph kebaca
-  metadataBase: new URL("https://kesimpulan.vercel.app"), 
-  
+  metadataBase: new URL(appUrl),
   title: "Kesimpulan",
   description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir & kuis instan.",
   
-  // Ini yang bikin kartu preview muncul (WAJIB)
+  // Standard Open Graph (Buat Twitter/Discord/WhatsApp)
   openGraph: {
     title: "Kesimpulan - Ringkas Apapun Jadi Visual",
     description: "Tempel link, dapatkan diagram alur dan kuis pemahaman dalam hitungan detik.",
-    url: "https://kesimpulan.vercel.app",
-    siteName: "Kesimpulan Mini App",
+    url: appUrl,
+    siteName: "Kesimpulan",
     images: [
       {
-        url: "/opengraph-image.png", // Pastikan file ini ada di folder public
+        url: `${appUrl}/opengraph-image.png`, // Pastikan file ini ada di folder public!
         width: 1200,
         height: 630,
-        alt: "Kesimpulan App Preview",
+        alt: "Kesimpulan Preview",
       },
     ],
     locale: "id_ID",
     type: "website",
   },
   
-  // Metadata tambahan buat Farcaster
+  // --- FARCASTER FRAME METADATA (YANG WAJIB BENER) ---
   other: {
-    "fc:frame": "vNext", // Sinyal kalau ini App modern
-    "fc:frame:image": "https://kesimpulan.vercel.app/opengraph-image.png",
+    "fc:frame": "vNext",
+    "fc:frame:image": `${appUrl}/opengraph-image.png`, // Gambar Preview
+    "fc:frame:image:aspect_ratio": "1.91:1", // Wajib didefinisikan biar Valid
+    
+    // Tombol Utama: Buka Mini App
     "fc:frame:button:1": "Buka Kesimpulan",
-    "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": "https://kesimpulan.vercel.app",
+    "fc:frame:button:1:action": "link", // Tipe aksi: Buka Link
+    "fc:frame:button:1:target": appUrl, // Link tujuan (App kita)
+    
+    // Fallback URL (Sering bikin error kalau ga ada)
+    "fc:frame:post_url": `${appUrl}/api/webhook`, 
   },
 };
 
