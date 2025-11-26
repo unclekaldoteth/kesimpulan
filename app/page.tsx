@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import sdk from '@farcaster/miniapp-sdk';
 import { 
-  FileText, Trophy, User, Share2, Bell, Sparkles, 
-  ChevronRight, Search, Wallet, CheckCircle, XCircle
+  FileText, Trophy, User, Share2, Sparkles, 
+  Search, Wallet, CheckCircle, XCircle
 } from 'lucide-react';
 import Mermaid from 'react-mermaid2';
 
@@ -75,29 +75,32 @@ export default function Home() {
 
   const handleTip = () => { sdk.actions.openUrl("https://warpcast.com/unclekal"); };
 
-  // --- PALET WARNA ---
-  const bgApp = "bg-[#F2F2F6]"; 
-  const bgCard = "bg-white";
-  const accentColor = "bg-[#6a61e3]"; 
-  const accentLight = "bg-[#6a61e3]/10";
-  const textMain = "text-[#1c1c1e]";
-  const textSub = "text-[#8e8e93]";
-
-  // PERHATIKAN: Disini langsung <main>, TIDAK ADA <html> atau <body>
   return (
-    <main className={`min-h-screen ${bgApp} font-sans pb-32 text-slate-900 selection:bg-purple-200`}>
+    <main className="min-h-screen bg-[#F2F2F6] font-sans pb-32 text-slate-900 selection:bg-purple-200">
       
-      {/* HEADER */}
-      <div className="pt-6 pb-2 px-5 flex justify-between items-center">
-         <h1 className={`text-2xl font-bold tracking-tight ${textMain}`}>
+      {/* HEADER FIXED */}
+      <div className="fixed top-0 w-full z-50 bg-[#F2F2F6]/90 backdrop-blur-sm pt-6 pb-2 px-5 flex justify-between items-center border-b border-slate-200">
+         <h1 className="text-2xl font-bold tracking-tight text-[#1c1c1e]">
             Kesimpulan
          </h1>
-         <button onClick={() => setActiveTab('profile')} className="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden">
-             {userContext?.pfpUrl ? <img src={userContext.pfpUrl} alt="pfp"/> : <User size={18} className="text-slate-400"/>}
+         
+         {/* --- FIX: PEMBUNGKUS GAMBAR BIAR GAK MELEDAK --- */}
+         <button onClick={() => setActiveTab('profile')} className="w-9 h-9 min-w-[36px] min-h-[36px] rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden border border-slate-200">
+             {userContext?.pfpUrl ? (
+                 <img 
+                    src={userContext.pfpUrl} 
+                    alt="pfp" 
+                    className="w-full h-full object-cover" 
+                    style={{width:'100%', height:'100%', objectFit:'cover'}} 
+                 />
+             ) : (
+                 <User size={18} className="text-slate-400"/>
+             )}
          </button>
       </div>
 
-      <div className="px-4 max-w-md mx-auto">
+      {/* CONTAINER DENGAN PADDING ATAS (BIAR GAK KETUTUP HEADER) */}
+      <div className="pt-24 px-4 max-w-md mx-auto">
         
         {/* === TAB 1: HOME / QUIZ === */}
         {activeTab === 'quiz' && (
@@ -105,19 +108,19 @@ export default function Home() {
             {!quizData ? (
                 <>
                    {/* Greeting Card */}
-                   <div className={`${bgCard} p-5 rounded-[20px] shadow-sm flex items-center gap-4`}>
-                      <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center text-[#6a61e3]">
+                   <div className="bg-white p-5 rounded-[20px] shadow-sm flex items-center gap-4">
+                      <div className="w-14 h-14 min-w-[56px] bg-purple-100 rounded-full flex items-center justify-center text-[#6a61e3]">
                          <Sparkles size={24} strokeWidth={2.5}/>
                       </div>
-                      <div>
-                         <h2 className="text-lg font-bold text-slate-800">Halo, {userContext?.username || "Guest"}!</h2>
-                         <p className={`text-xs ${textSub}`}>Apa yang mau diringkas hari ini?</p>
+                      <div className="overflow-hidden">
+                         <h2 className="text-lg font-bold text-slate-800 truncate">Halo, {userContext?.username || "Guest"}!</h2>
+                         <p className="text-xs text-slate-500 truncate">Apa yang mau diringkas hari ini?</p>
                       </div>
                    </div>
 
                    {/* Input Area */}
-                   <div className={`${bgCard} p-4 rounded-[24px] shadow-sm`}>
-                      <div className={`flex items-center gap-2 ${bgApp} rounded-xl px-3 py-2 mb-3`}>
+                   <div className="bg-white p-4 rounded-[24px] shadow-sm">
+                      <div className="flex items-center gap-2 bg-[#F2F2F6] rounded-xl px-3 py-2 mb-3">
                           <Search size={16} className="text-slate-400"/>
                           <input 
                              type="text"
@@ -137,12 +140,11 @@ export default function Home() {
                       />
                    </div>
                   
-                  {/* Action Button */}
                   <button 
                     onClick={handleGenerate}
                     disabled={loading || !inputText}
                     className={`w-full py-4 rounded-[18px] font-bold text-white flex justify-center items-center gap-2 shadow-lg shadow-purple-200 transition-all active:scale-[0.98] ${
-                        loading ? 'bg-slate-300' : accentColor
+                        loading ? 'bg-slate-300' : 'bg-[#6a61e3]'
                     }`}
                   >
                     {loading ? <Sparkles className="animate-spin" size={20}/> : "Buat Ringkasan"}
@@ -153,13 +155,13 @@ export default function Home() {
                 <div className="space-y-4 animate-in slide-in-from-bottom-4">
                     
                     {/* Mermaid Chart Card */}
-                    <div className={`${bgCard} rounded-[24px] shadow-sm overflow-hidden`}>
+                    <div className="bg-white rounded-[24px] shadow-sm overflow-hidden">
                          <div className="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                              <div className="text-xs font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wide">
                                 <Share2 size={12} /> Visual Map
                              </div>
                          </div>
-                        <div className="p-4 flex justify-center bg-white">
+                        <div className="p-4 flex justify-center bg-white overflow-x-auto">
                            <div className="mermaid-container w-full flex justify-center text-xs font-bold text-slate-800">
                                <Mermaid chart={quizData.mermaid_chart} />
                            </div>
@@ -167,15 +169,15 @@ export default function Home() {
                     </div>
 
                     {/* Summary Card */}
-                    <div className={`${bgCard} p-6 rounded-[24px] shadow-sm`}>
-                        <h3 className={`text-sm font-bold ${textMain} mb-2`}>Intisari</h3>
-                        <p className={`text-[15px] leading-7 ${textMain} whitespace-pre-line`}>
+                    <div className="bg-white p-6 rounded-[24px] shadow-sm">
+                        <h3 className="text-sm font-bold text-[#1c1c1e] mb-2">Intisari</h3>
+                        <p className="text-[15px] leading-7 text-[#1c1c1e] whitespace-pre-line">
                            {quizData.summary}
                         </p>
                     </div>
 
                     {/* Quiz Section */}
-                    <div className={`${bgCard} p-6 rounded-[24px] shadow-sm`}>
+                    <div className="bg-white p-6 rounded-[24px] shadow-sm">
                         <h3 className="font-bold text-lg mb-5 text-slate-900">{quizData.question}</h3>
                         <div className="space-y-2.5">
                             {quizData.options.map((opt: string, idx: number) => (
@@ -198,7 +200,7 @@ export default function Home() {
 
                     <button 
                         onClick={() => { setQuizData(null); setInputText(""); }}
-                        className={`w-full py-4 text-sm font-bold ${textSub} bg-white rounded-[18px] shadow-sm`}
+                        className="w-full py-4 text-sm font-bold text-[#8e8e93] bg-white rounded-[18px] shadow-sm"
                     >
                         Mulai Baru
                     </button>
@@ -210,7 +212,7 @@ export default function Home() {
         {/* === TAB 2: LEADERBOARD === */}
         {activeTab === 'leaderboard' && (
              <div className="space-y-4 animate-in fade-in">
-                <div className={`${bgCard} p-5 rounded-[20px] shadow-sm flex items-center justify-between`}>
+                <div className="bg-white p-5 rounded-[20px] shadow-sm flex items-center justify-between">
                     <div>
                         <p className="text-xs text-slate-400 font-bold uppercase mb-1">Komunitas</p>
                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">/base</h2>
@@ -223,25 +225,33 @@ export default function Home() {
         {/* === TAB 3: PROFIL === */}
         {activeTab === 'profile' && (
             <div className="space-y-5 animate-in fade-in">
-                <div className={`${bgCard} p-6 rounded-[24px] shadow-sm text-center relative overflow-hidden`}>
-                    <div className="w-24 h-24 bg-slate-100 rounded-full mx-auto mb-3 overflow-hidden">
-                        {userContext?.pfpUrl ? <img src={userContext.pfpUrl} alt="pfp" className="w-full h-full object-cover"/> : <User className="w-full h-full p-6 text-slate-300"/>}
+                <div className="bg-white p-6 rounded-[24px] shadow-sm text-center relative overflow-hidden">
+                    <div className="w-24 h-24 bg-slate-100 rounded-full mx-auto mb-3 overflow-hidden border-4 border-slate-50">
+                        {userContext?.pfpUrl ? (
+                            <img 
+                                src={userContext.pfpUrl} 
+                                alt="pfp" 
+                                className="w-full h-full object-cover" 
+                                style={{width:'100%', height:'100%', objectFit:'cover'}}
+                            />
+                        ) : (
+                            <User className="w-full h-full p-6 text-slate-300"/>
+                        )}
                     </div>
                     <h2 className="text-xl font-bold text-slate-900">@{userContext?.username || "Guest"}</h2>
                     
                      <button 
                         onClick={handleAddFrame}
                         disabled={isFrameAdded}
-                        className={`mt-4 px-6 py-2 rounded-full text-xs font-bold border transition-all ${isFrameAdded ? 'bg-green-50 text-green-600 border-green-200' : `${accentColor} text-white border-transparent`}`}
+                        className={`mt-4 px-6 py-2 rounded-full text-xs font-bold border transition-all ${isFrameAdded ? 'bg-green-50 text-green-600 border-green-200' : 'bg-[#6a61e3] text-white border-transparent'}`}
                     >
                         {isFrameAdded ? "Notifikasi Aktif" : "Aktifkan Notifikasi"}
                     </button>
                 </div>
                 
                 <div className="space-y-2">
-                    <button onClick={handleTip} className={`${accentColor} w-full p-4 rounded-[18px] flex items-center justify-between text-white shadow-lg shadow-indigo-200`}>
+                    <button onClick={handleTip} className="bg-[#6a61e3] w-full p-4 rounded-[18px] flex items-center justify-between text-white shadow-lg shadow-indigo-200">
                         <div className="flex items-center gap-3"><Wallet size={20} /><span className="font-bold text-sm">Tip 1 USDC</span></div>
-                        <ChevronRight size={20} className="opacity-70"/>
                     </button>
                 </div>
             </div>
