@@ -122,46 +122,40 @@ export default function Home() {
   };
 
       const handleShareResult = () => {
-    if (!quizData) {
-      showToast("Belum ada ringkasan untuk dibagikan.", "error");
-      return;
-    }
+  if (!quizData) return;
 
-    // 1. Siapkan teks caption
-    const rawTopic: string = quizData.summary || "topik ini";
-    const cleanTopic =
-      rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
+  const rawTopic: string = quizData.summary || "topik ini";
+  const cleanTopic =
+    rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
-    // Deteksi link Warpcast / Farcaster
-    const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
-    const match = inputText.match(farcasterRegex);
+  const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
+  const match = inputText.match(farcasterRegex);
 
-    let shareText = "";
-    if (match && match[2]) {
-      const username = match[2];
-      shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
-    } else {
-      shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
-    }
+  let shareText = "";
+  if (match && match[2]) {
+    const username = match[2];
+    shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
+  } else {
+    shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
+  }
 
-    const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
+  const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
 
-    // 2. Summary khusus untuk gambar (max ~200 char)
-    const summaryForImage = (quizData.summary as string)
-      .replace(/\n/g, " ")
-      .slice(0, 200);
+  const summaryForImage = (quizData.summary as string)
+    .replace(/\n/g, " ")
+    .slice(0, 200);
 
-    // 3. URL embed ke halaman /share (yang pakai OG dynamic)
-    const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
-      summaryForImage
-    )}`;
+  const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
+    summaryForImage
+  )}`;
 
-    const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
-      fullText
-    )}&embeds[]=${encodeURIComponent(embedUrl)}`;
+  const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+    fullText
+  )}&embeds[]=${encodeURIComponent(embedUrl)}`;
 
-    sdk.actions.openUrl(composeUrl);
-  };
+  sdk.actions.openUrl(composeUrl);
+};
+
 
 
   const handleTip = async (amountEth: string) => {
