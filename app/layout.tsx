@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     // Tombol Launch
     "fc:frame:button:1": "Buka App", // Ganti jadi Buka App biar jelas
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": "https://kesimpulan.vercel.app", // Harus match sama homeUrl
+    "fc:frame:button:1:target": "https://kesimpulan.vercel.app/home", // Harus match sama homeUrl
     
     "fc:frame:post_url": "https://kesimpulan.vercel.app/api/webhook", 
   },
