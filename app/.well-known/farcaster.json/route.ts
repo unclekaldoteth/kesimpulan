@@ -21,7 +21,7 @@ export async function GET() {
       splashBackgroundColor: "#000000",
       webhookUrl: `${appUrl}/api/webhook`,
       subtitle: "Ringkasan Visual Instan",
-      tagline: " Baca lebih cepat, paham lebih dalam",
+      tagline: "Lebih Cepat Paham",
       primaryCategory: "productivity",
       heroImageUrl: `${appUrl}/opengraph-image.png`,
       screenshotUrls: [
