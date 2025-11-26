@@ -1,7 +1,8 @@
-// app/.well-known/farcaster.json/route.ts
 import { NextResponse } from 'next/server';
 
 export async function GET() {
+  const appUrl = "https://kesimpulan.vercel.app"; // Pastikan ini domain asli lu
+
   const config = {
     accountAssociation: {
       header: "eyJmaWQiOiA4ODg4LCJ0eXBlIjogImN1c3RvZHkiLCAia2V5IjogIjB4MTI...",
@@ -11,13 +12,27 @@ export async function GET() {
     frame: {
       version: "1",
       name: "Kesimpulan",
-      iconUrl: "https://kesimpulan.vercel.app/icon.png", // Pastikan ada icon.png di folder public atau ganti link luar
-      homeUrl: "https://kesimpulan.vercel.app",
-      imageUrl: "https://kesimpulan.vercel.app/opengraph-image.png",
-      buttonTitle: "Buka Kesimpulan",
-      splashImageUrl: "https://kesimpulan.vercel.app/icon.png", 
-      splashBackgroundColor: "#000000", // <--- UBAH JADI HITAM PEKAT (Sesuai UI)
-      webhookUrl: "https://kesimpulan.vercel.app/api/webhook"
+      iconUrl: `${appUrl}/icon.png`, 
+      homeUrl: appUrl,
+      imageUrl: `${appUrl}/opengraph-image.png`,
+      buttonTitle: "Buat Ringkasan",
+      splashImageUrl: `${appUrl}/icon.png`,
+      splashBackgroundColor: "#000000",
+      webhookUrl: `${appUrl}/api/webhook`,
+      
+      // --- FITUR BARU SESUAI STANDAR ---
+      // 1. Discovery (SEO)
+      description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir (Mermaid) dan kuis interaktif dalam hitungan detik. Didukung oleh AI.",
+      keywords: ["ai", "summary", "education", "productivity", "indonesia", "reading"],
+      
+      // 2. Share Extension (Biar bisa terima link dari luar)
+      // Ini memungkinkan user nge-share URL langsung ke Mini App lu
+      triggers: [
+        { 
+          type: "share", 
+          action: { type: "launch_frame", name: "Ringkas Ini", url: appUrl } 
+        }
+      ]
     }
   };
 
