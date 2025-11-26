@@ -123,24 +123,42 @@ export default function Home() {
 
   const handleShareResult = () => {
     let shareText = "";
+    
+    // 1. AMBIL TOPIK (ISI CAST) DARI RINGKASAN AI
+    // Kita ambil kalimat pertama dari summary, max 60 karakter biar pas di caption
+    const rawTopic = quizData?.summary || "topik ini";
+    const cleanTopic = rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 60) + "...";
+
+    // 2. DETEKSI USERNAME DARI LINK INPUT
     const farcasterRegex = /warpcast\.com\/([^\/]+)/;
     const match = inputText.match(farcasterRegex);
 
     if (match && match[1]) {
-        const username = match[1];
-        const topic = quizData?.summary ? quizData.summary.split('.')[0].substring(0, 40) + "..." : "topik menarik";
-        shareText = `Baru aja dapet ringkasan visual cast @${username}: "${topic}" ✨`;
+        // SKENARIO: Inputnya adalah Link Warpcast
+        const username = match[1]; // Contoh: unclekal
+        
+        // FORMAT SESUAI REQUEST LU:
+        // "Baru aja dapet ringkasan visual dari cast @username tentang isi castnya"
+        shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
     } else {
+        // SKENARIO: Inputnya Link Website Biasa / Teks Panjang
         let sourceName = "artikel ini";
-        try { if (inputText.startsWith('http')) sourceName = new URL(inputText).hostname; } catch(e) {}
-        shareText = `Baru aja dapet ringkasan visual dari ${sourceName} ✨`;
+        try {
+            if (inputText.startsWith('http')) {
+                sourceName = new URL(inputText).hostname.replace('www.','');
+            }
+        } catch(e) {}
+        
+        shareText = `Baru aja dapet ringkasan visual dari ${sourceName} tentang "${cleanTopic}" ✨`;
     }
 
-    const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
-    const timestamp = Date.now();
-    const embedUrl = `https://kesimpulan.vercel.app/?t=${timestamp}`; 
+    // 3. URL FRAME (WAJIB SAMA DENGAN LAYOUT.TSX BIAR MUNCUL TOMBOL)
+    const appUrl = "https://kesimpulan.vercel.app"; 
     
-    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${embedUrl}`);
+    // 4. BUKA COMPOSE WINDOW
+    // text = Wording lu yang rapi
+    // embeds = Tombol Launch App
+    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${appUrl}`);
   };
 
   const handleTip = async (amountEth: string) => {
