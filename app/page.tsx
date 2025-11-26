@@ -122,47 +122,23 @@ export default function Home() {
   };
 
   const handleShareResult = () => {
-    let shareText = "";
-    
-    // 1. AMBIL TOPIK (ISI CAST) DARI RINGKASAN AI
-    // Kita ambil kalimat pertama dari summary, max 60 karakter biar pas di caption
-    const rawTopic = quizData?.summary || "topik ini";
-    const cleanTopic = rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 60) + "...";
+    // 1. Ambil Topik dari hasil AI (biar nyambung)
+    const rawTopic = quizData?.summary || "topik menarik";
+    // Ambil kalimat pertama, max 50 karakter, hilangkan enter
+    const cleanTopic = rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
-    // 2. DETEKSI USERNAME DARI LINK INPUT
-    const farcasterRegex = /warpcast\.com\/([^\/]+)/;
-    const match = inputText.match(farcasterRegex);
+    // 2. FORMAT BARU SESUAI REQUEST:
+    // "Baru aja dapet ringkasan dari Mini App: Kesimpulan tentang..."
+    const shareText = `Baru aja dapet ringkasan dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
 
-    if (match && match[1]) {
-        // SKENARIO: Inputnya adalah Link Warpcast
-        const username = match[1]; // Contoh: unclekal
-        
-        // FORMAT SESUAI REQUEST LU:
-        // "Baru aja dapet ringkasan visual dari cast @username tentang isi castnya"
-        shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
-    } else {
-        // SKENARIO: Inputnya Link Website Biasa / Teks Panjang
-        let sourceName = "artikel ini";
-        try {
-            if (inputText.startsWith('http')) {
-                sourceName = new URL(inputText).hostname.replace('www.','');
-            }
-        } catch(e) {}
-        
-        shareText = `Baru aja dapet ringkasan visual dari ${sourceName} tentang "${cleanTopic}" ✨`;
-    }
-
-    // 3. URL FRAME (WAJIB SAMA DENGAN LAYOUT.TSX BIAR MUNCUL TOMBOL)
-    const appUrl = "https://kesimpulan.vercel.app"; 
-    
-    // 4. BUKA COMPOSE WINDOW
-    // text = Wording lu yang rapi
-    // embeds = Tombol Launch App
-    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&embeds[]=${appUrl}`);
+    // 3. Link & Open
+    const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
+    const embedUrl = "https://kesimpulan.vercel.app"; 
+    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${embedUrl}`);
   };
 
   const handleTip = async (amountEth: string) => {
-    const devWallet = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"; 
+    const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; 
     const amountWei = amountEth === '1' ? BigInt(300000000000000) : BigInt(1500000000000000);
     const hexValue = "0x" + amountWei.toString(16);
 
@@ -264,11 +240,32 @@ export default function Home() {
                         <h3 className="font-bold text-lg mb-6 text-white leading-snug">{quizData.question}</h3>
                         <div className="space-y-3">
                             {quizData.options.map((opt: string, idx: number) => (
-                                <button key={idx} disabled={selectedOption !== null} onClick={() => handleAnswer(idx)} className={`w-full p-4 rounded-xl text-left text-[14px] font-medium border transition-all flex justify-between items-center ${selectedOption === idx ? (isCorrect ? 'bg-green-500/10 border-green-500 text-green-400' : 'bg-red-500/10 border-red-500 text-red-400') : 'bg-[#1a1a1a] border-white/5 text-gray-300 hover:border-white/20'}`}>
-                                    <span>{opt}</span>{selectedOption === idx && (isCorrect ? <CheckCircle size={18}/> : <XCircle size={18}/>)}
+                                <button key={idx}disabled={isCorrect === true} 
+                                    onClick={() => handleAnswer(idx)}
+                                    className={`w-full p-4 rounded-xl text-left text-[14px] font-medium border transition-all flex justify-between items-center ${
+                                        selectedOption === idx 
+                                        ? (isCorrect ? 'bg-green-500/10 border-green-500 text-green-400' : 'bg-red-500/10 border-red-500 text-red-400')
+                                        : 'bg-[#1a1a1a] border-white/5 text-gray-300 hover:border-white/20'
+                                    }`}
+                                >
+                                    <span>{opt}</span>
+                                    {selectedOption === idx && (isCorrect ? <CheckCircle size={18}/> : <XCircle size={18}/>)}
                                 </button>
                             ))}
                         </div>
+
+                        {/* TOMBOL "COBA LAGI" (Hanya muncul kalau sudah jawab DAN salah) */}
+                        {selectedOption !== null && isCorrect === false && (
+                            <button 
+                                onClick={() => {
+                                    setSelectedOption(null);
+                                    setIsCorrect(null);
+                                }}
+                                className="mt-4 w-full py-3 rounded-xl text-sm font-bold text-white bg-[#222] border border-white/10 hover:bg-[#333] transition-colors flex justify-center items-center gap-2"
+                            >
+                                🔄 Coba Lagi
+                            </button>
+                        )}
                     </div>
                     {isCorrect && (
                         <div className="flex flex-col gap-3 animate-pulse">

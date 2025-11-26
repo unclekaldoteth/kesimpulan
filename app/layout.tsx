@@ -16,7 +16,7 @@ const frame = {
   version: "next",
   imageUrl: `${appUrl}/opengraph-image.png`,
   button: {
-    title: "Buka App",
+    title: "Buat Kesimpulan",
     action: {
       type: "launch_frame",
       name: "Kesimpulan",
