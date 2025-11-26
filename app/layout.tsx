@@ -1,4 +1,3 @@
-// 👇 BARIS INI YANG TADI HILANG/SALAH 👇
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -12,20 +11,21 @@ const inter = Inter({
 const appUrl = "https://kesimpulan.vercel.app";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kesimpulan.vercel.app"),
+  metadataBase: new URL(appUrl),
   title: "Kesimpulan",
-  description: "Ringkas artikel panjang jadi visual alur pikir & kuis instan.",
+  description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir & kuis instan.",
   
+  // --- OPEN GRAPH (Standar Web2) ---
   openGraph: {
     title: "Kesimpulan",
     description: "Ringkas artikel panjang jadi visual & kuis.",
-    url: "https://kesimpulan.vercel.app",
+    url: appUrl,
     siteName: "Kesimpulan",
     images: [
       {
-        url: "https://kesimpulan.vercel.app/opengraph-image.png",
-        width: 1200,
-        height: 630,
+        url: `${appUrl}/opengraph-image.png`,
+        width: 1080, // Sesuaikan dengan spec 1:1
+        height: 1080,
         alt: "Kesimpulan Preview",
       },
     ],
@@ -33,18 +33,22 @@ export const metadata: Metadata = {
     type: "website",
   },
   
-  // --- METADATA FRAME BERSIH ---
+  // --- FARCASTER FRAME SPECIFICATION (v2) ---
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": "https://kesimpulan.vercel.app/opengraph-image.png",
-    "fc:frame:image:aspect_ratio": "1.91:1", // Pastikan gambar lu Landscape
     
-    // Cuma satu tombol: Buka App
+    // SPEC RULE: Image harus < 3MB. 
+    // Gunakan Aspect Ratio 1:1 (Kotak) agar tampilan di feed lebih tinggi/besar.
+    "fc:frame:image": `${appUrl}/opengraph-image.png`,
+    "fc:frame:image:aspect_ratio": "1:1", 
+    
+    // Tombol Launch (Link Action)
     "fc:frame:button:1": "Buka App",
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": "https://kesimpulan.vercel.app",
+    "fc:frame:button:1:target": appUrl,
     
-    // HAPUS post_url BIAR TIDAK KONFLIK
+    // Fallback Webhook (Required by some validators for health check)
+    "fc:frame:post_url": `${appUrl}/api/webhook`,
   },
 };
 
@@ -53,7 +57,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#000000",
+  themeColor: "#000000", // Sesuai warna bg app
 };
 
 export default function RootLayout({
