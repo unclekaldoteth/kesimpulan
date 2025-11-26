@@ -122,33 +122,41 @@ export default function Home() {
   };
 
         const handleShareResult = (data: any) => {
-    if (!data) return;
+    if (!data) {
+      showToast("Belum ada ringkasan untuk dibagikan.", "error");
+      return;
+    }
 
-    // 1. Siapkan Teks Caption (Buat pancingan di feed)
-    const rawTopic = data.summary || "topik ini";
-    const cleanTopic = rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
-    
-    // 2. Siapkan Teks Gambar (Buat dilukis di OG Image)
-    // Kita potong max 180 karakter biar gambarnya gak penuh sesak
-    const summaryForImage = rawTopic.replace(/\n/g, " ").substring(0, 180);
+    // 1. Topik buat Caption (Boleh agak panjang)
+    const rawTopic: string = data.summary || "topik ini";
+    const cleanTopic = rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
-    // 3. Deteksi Username (Opsional, kayak tadi)
+    // 2. Deteksi Username (Sama kyk yg lama)
     const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
     const match = inputText.match(farcasterRegex);
     let shareText = "";
-    
     if (match && match[2]) {
-        shareText = `Baru aja dapet ringkasan visual cast @${match[2]}: "${cleanTopic}" ✨`;
+      const username = match[2];
+      shareText = `Baru aja dapet ringkasan visual cast @${username}: "${cleanTopic}" ✨`;
     } else {
-        shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
+      shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
     }
 
-    const fullText = `${shareText}\n\nBuat Kesimpulan Mu Sendiri👇`;
+    const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
 
-    // 4. RAKIT URL SHARE (Arahkan ke /share dengan parameter summary)
+    // 3. FIX DISINI: Summary buat Gambar DIPERPENDEK
+    // Kemarin 200, sekarang kita turunin jadi 100 biar Link-nya gak meledak
+    const summaryForImage = (data.summary as string)
+      .replace(/[\n\r]+/g, " ") // Hapus enter
+      .substring(0, 100) + "..."; // Potong max 100 karakter + titik tiga
+
+    // 4. Embed URL
     const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(summaryForImage)}`;
 
-    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`);
+    // Note: Kita encodeURIComponent embedUrl-nya lagi saat masuk ke composeUrl
+    const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`;
+
+    sdk.actions.openUrl(composeUrl);
   };
 
   const handleTip = async (amountEth: string) => {
