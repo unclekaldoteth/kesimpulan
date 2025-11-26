@@ -50,25 +50,29 @@ export async function POST(req: Request) {
     // --- 2. GEMINI 2.0 DENGAN INSTRUKSI INDONESIA ---
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const prompt = `
-      Anda adalah AI Tutor khusus untuk pengguna Indonesia di aplikasi Farcaster.
+    // Cari bagian "const prompt = ..." dan GANTI dengan ini:
 
-      TEKS SUMBER (Bisa bahasa apapun): 
+    const prompt = `
+      Anda adalah AI Tutor edukatif.
+
+      TEKS SUMBER: 
       "${contentToAnalyze.substring(0, 6000)}"
 
       INSTRUKSI:
-      1. Pelajari TEKS SUMBER di atas.
-      2. Terjemahkan inti sarinya ke dalam **BAHASA INDONESIA**.
-      3. Jelaskan dengan gaya bahasa yang santai tapi edukatif (cocok untuk komunitas crypto/tech Indonesia).
-      4. Buat diagram alur (Mermaid.js) dengan label Bahasa Indonesia.
-
-      FORMAT OUTPUT (WAJIB JSON MURNI):
+      1. Pelajari TEKS SUMBER.
+      2. Buat Diagram Mermaid.js yang SANGAT SEDERHANA (Flowchart TD).
+         - HANYA gunakan node kotak biasa (A[Teks]).
+         - JANGAN gunakan tanda kurung () di dalam teks label.
+         - JANGAN gunakan simbol aneh (kutip, titik dua) di dalam teks label.
+         - Format: graph TD; A[Mulai] --> B[Proses];
+      
+      FORMAT OUTPUT (JSON MURNI):
       {
-        "summary": "Ringkasan 3 poin utama (Wajib Bahasa Indonesia)",
-        "mermaid_chart": "graph TD; A[Konsep Utama] --> B[Detail 1]; B --> C[Detail 2]; (Label dalam diagram WAJIB Bahasa Indonesia)",
-        "question": "Satu pertanyaan pilihan ganda untuk menguji pemahaman (Wajib Bahasa Indonesia)",
-        "options": ["Pilihan A", "Pilihan B", "Pilihan C", "Pilihan D"] (Wajib Bahasa Indonesia),
-        "correctIndex": number (Indeks jawaban benar 0-3)
+        "summary": "Ringkasan 3 poin utama (Bahasa Indonesia yang santai & padat)",
+        "mermaid_chart": "graph TD; A[Konsep Inti] --> B[Detail 1]; B --> C[Detail 2]; C --> D[Kesimpulan];", 
+        "question": "Satu pertanyaan pilihan ganda yang relevan",
+        "options": ["Pilihan A", "Pilihan B", "Pilihan C", "Pilihan D"],
+        "correctIndex": number
       }
     `;
 
