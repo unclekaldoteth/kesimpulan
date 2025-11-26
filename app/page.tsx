@@ -1,4 +1,3 @@
-// app/page.tsx
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -22,32 +21,25 @@ export default function Home() {
   const [userContext, setUserContext] = useState<any>(null);
   const [isFrameAdded, setIsFrameAdded] = useState(false);
 
-  // --- INIT FARCASTER ---
+  // --- INIT FARCASTER (FIXED) ---
   useEffect(() => {
     const initialize = async () => {
       try {
-        // 1. Kasih log biar kita tau ini jalan di Inspect Element
         console.log("Mencoba inisialisasi Frame...");
         
-        // 2. Panggil ready() DULUAN sebelum loading data lain
-        // Ini perintah wajib biar splash screen ilang
+        // Panggil ready() DULUAN biar splash screen ilang
         await sdk.actions.ready();
         console.log("Frame Ready! Splash screen harusnya hilang.");
 
-        // 3. Baru ambil data user
         const context = await sdk.context;
         if (context?.user) {
             console.log("User terdeteksi:", context.user.username);
             setUserContext(context.user);
-        } else {
-            console.log("User context kosong (mungkin di browser biasa)");
         }
       } catch (e) {
-        // Kalau error, catat di console tapi JANGAN biarkan app crash
         console.error("Gagal inisialisasi Farcaster:", e);
       }
     };
-
     initialize();
   }, []);
 
@@ -91,9 +83,8 @@ export default function Home() {
   };
 
   const handleShareResult = () => {
-    // Branding baru di teks share
     const text = `Gua baru aja baca ringkasan topik ini lewat @Kesimpulan. Hemat waktu banget! ⚡️🇮🇩\n\nCek ringkasannya di sini 👇`;
-    const embedUrl = "https://kesimpulan.vercel.app"; // Nanti sesuaikan domain
+    const embedUrl = "https://kesimpulan.vercel.app"; // Pastikan ini domain lu
     sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${embedUrl}`);
   };
 
@@ -107,7 +98,6 @@ export default function Home() {
       {/* HEADER BRANDING: KESIMPULAN */}
       <header className="flex justify-between items-center p-4 bg-slate-900/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          {/* Logo Icon diganti FileText biar lebih 'Dokumen' banget */}
           <div className="bg-cyan-500/10 p-1.5 rounded-lg">
              <FileText className="text-cyan-400" size={18} />
           </div>
@@ -130,7 +120,6 @@ export default function Home() {
           <div className="space-y-6">
             {!quizData ? (
                 <div className="space-y-5 animate-in fade-in slide-in-from-bottom-2">
-                   {/* Welcome Banner */}
                    <div className="text-center py-4">
                       <h2 className="text-2xl font-bold mb-2">Malas Baca Panjang?</h2>
                       <p className="text-slate-400 text-sm">
@@ -185,14 +174,10 @@ export default function Home() {
 
                     {/* Hasil: Ringkasan Teks */}
                     <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 relative">
-                         {/* Dekorasi kutip */}
-                        <div className="absolute top-4 left-4 text-slate-800">
-                             <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11C14.017 11.5523 13.5693 12 13.017 12H12.017V5H22.017V15C22.017 18.3137 19.3307 21 16.017 21H14.017ZM5.0166 21L5.0166 18C5.0166 16.8954 5.91203 16 7.0166 16H10.0166C10.5689 16 11.0166 15.5523 11.0166 15V9C11.0166 8.44772 10.5689 8 10.0166 8H6.0166C5.46432 8 5.0166 8.44772 5.0166 9V11C5.0166 11.5523 4.56889 12 4.0166 12H3.0166V5H13.0166V15C13.0166 18.3137 10.3303 21 7.0166 21H5.0166Z" /></svg>
-                        </div>
-                        <h3 className="text-xs font-bold text-cyan-500 uppercase mb-3 flex items-center gap-2 pl-8">
+                        <h3 className="text-xs font-bold text-cyan-500 uppercase mb-3 flex items-center gap-2">
                             Intisari
                         </h3>
-                        <p className="text-sm leading-7 text-slate-200 whitespace-pre-line pl-2 relative z-10 font-medium">
+                        <p className="text-sm leading-7 text-slate-200 whitespace-pre-line font-medium">
                            {quizData.summary}
                         </p>
                     </div>
@@ -257,23 +242,6 @@ export default function Home() {
                     <div className="text-4xl font-black text-cyan-400 tracking-tighter">/base</div>
                     <p className="text-xs text-slate-500 mt-2 font-mono">Total Kesimpulan: 1,240</p>
                 </div>
-
-                <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-slate-400 ml-1">Pembaca Teratas</h3>
-                    {[1,2,3].map((i) => (
-                        <div key={i} className="flex items-center justify-between p-4 bg-slate-900 rounded-xl border border-slate-800">
-                            <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${i===1 ? 'bg-yellow-500 text-black' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
-                                    #{i}
-                                </div>
-                                <div>
-                                    <div className="text-sm font-bold text-slate-200">User_{i * 99}</div>
-                                </div>
-                            </div>
-                            <div className="text-cyan-600 font-mono text-xs font-bold">{150 - (i*10)} Bacaan</div>
-                        </div>
-                    ))}
-                </div>
              </div>
         )}
 
@@ -281,16 +249,7 @@ export default function Home() {
         {activeTab === 'profile' && (
             <div className="space-y-6 animate-in fade-in">
                 <div className="text-center space-y-3 py-8">
-                     <div className="w-20 h-20 bg-slate-900 rounded-full mx-auto flex items-center justify-center border border-slate-800">
-                        {userContext?.pfpUrl ? (
-                            <img src={userContext.pfpUrl} alt="pfp" className="w-full h-full rounded-full" />
-                        ) : (
-                            <User size={32} className="text-slate-600" />
-                        )}
-                    </div>
                     <h2 className="text-xl font-bold">@{userContext?.username || "Guest"}</h2>
-                    
-                    {/* ADD FRAME BUTTON */}
                      <button 
                         onClick={handleAddFrame}
                         disabled={isFrameAdded}
@@ -300,21 +259,12 @@ export default function Home() {
                     </button>
                 </div>
 
-                {/* TIPPING */}
                 <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
                     <h3 className="font-bold text-white mb-2 flex items-center gap-2 text-sm">
                         <Wallet size={16} className="text-cyan-500" /> Support Developer
                     </h3>
-                    <p className="text-xs text-slate-400 mb-6 leading-relaxed">
-                        Aplikasi ini gratis supaya kita semua makin pinter. Dukung server lewat tip kecil di Base.
-                    </p>
                     <div className="grid grid-cols-2 gap-3">
-                        <button onClick={handleTip} className="py-3 bg-blue-600 rounded-xl text-xs font-bold hover:bg-blue-500 text-white">
-                            Tip 1 USDC
-                        </button>
-                        <button onClick={handleTip} className="py-3 bg-slate-800 rounded-xl text-xs font-bold hover:bg-slate-700 text-slate-300 border border-slate-700">
-                            Tip 5 USDC
-                        </button>
+                        <button onClick={handleTip} className="py-3 bg-blue-600 rounded-xl text-xs font-bold hover:bg-blue-500 text-white">Tip 1 USDC</button>
                     </div>
                 </div>
             </div>
@@ -322,20 +272,16 @@ export default function Home() {
 
       </div>
 
-      {/* NAVIGASI BAWAH */}
       <nav className="fixed bottom-0 left-0 w-full bg-slate-950/90 backdrop-blur-xl border-t border-slate-900 p-2 pb-6 z-50">
         <div className="grid grid-cols-3 max-w-md mx-auto">
-            <button onClick={() => setActiveTab('quiz')} className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-colors ${activeTab === 'quiz' ? 'text-cyan-400' : 'text-slate-600 hover:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('quiz')} className={`flex flex-col items-center gap-1 p-2 rounded-xl ${activeTab === 'quiz' ? 'text-cyan-400' : 'text-slate-600'}`}>
                 <FileText size={20} />
-                <span className="text-[10px] font-bold">Ringkas</span>
             </button>
-            <button onClick={() => setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-colors ${activeTab === 'leaderboard' ? 'text-cyan-400' : 'text-slate-600 hover:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 p-2 rounded-xl ${activeTab === 'leaderboard' ? 'text-cyan-400' : 'text-slate-600'}`}>
                 <Trophy size={20} />
-                <span className="text-[10px] font-bold">Top</span>
             </button>
-            <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-colors ${activeTab === 'profile' ? 'text-cyan-400' : 'text-slate-600 hover:text-slate-400'}`}>
+            <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 p-2 rounded-xl ${activeTab === 'profile' ? 'text-cyan-400' : 'text-slate-600'}`}>
                 <User size={20} />
-                <span className="text-[10px] font-bold">Saya</span>
             </button>
         </div>
       </nav>
