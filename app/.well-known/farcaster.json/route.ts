@@ -20,7 +20,15 @@ export async function GET() {
       splashImageUrl: `${appUrl}/icon.png`,
       splashBackgroundColor: "#000000",
       webhookUrl: `${appUrl}/api/webhook`,
+      subtitle: "Ringkasan Visual Instan",
+      tagline: " Baca lebih cepat, paham lebih dalam",
+      primaryCategory: "productivity",
+      heroImageUrl: `${appUrl}/opengraph-image.png`,
+      screenshotUrls: [
+        `${appUrl}/tampilan-app.png` 
+      ],
       description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir (Mermaid) dan kuis interaktif dalam hitungan detik. Didukung oleh AI.",
+      castShareUrl: appUrl,
       keywords: ["ai", "summary", "education", "productivity", "indonesia", "reading"],
       triggers: [
         { 
