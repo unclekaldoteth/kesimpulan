@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Paksa background gelap biar kalau loading gak flash putih */
+body {
+  background-color: #000000;
+  color: #ffffff;
+}

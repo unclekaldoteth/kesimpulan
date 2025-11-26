@@ -22,7 +22,7 @@ export default function Home() {
   useEffect(() => {
     const initialize = async () => {
       try {
-        await sdk.actions.ready();
+        await sdk.actions.ready(); // Kasih sinyal ke Farcaster app udah siap
         const context = await sdk.context;
         if (context?.user) setUserContext(context.user);
       } catch (e) { console.error(e); }
@@ -74,28 +74,24 @@ export default function Home() {
 
   const handleTip = () => { sdk.actions.openUrl("https://warpcast.com/unclekal"); };
 
-  // --- STYLE CONFIG (Neynar Aesthetic) ---
-  // Background hitam pekat dengan glow ungu di CSS body (nanti di globals.css)
-  // Tapi kita simulasikan di div wrapper
-  
   return (
-    <main className="min-h-screen bg-[#050505] font-sans pb-32 text-white selection:bg-orange-500/30 relative overflow-x-hidden">
+    // Style manual backgroundColor buat jaga-jaga kalau Tailwind telat loading
+    <main className="min-h-screen font-sans pb-32 text-white selection:bg-orange-500/30 relative overflow-x-hidden" style={{backgroundColor: '#000000'}}>
       
-      {/* BACKGROUND GLOW EFFECTS (Ambient Light) */}
-      <div className="fixed top-[-10%] left-[20%] w-[200px] h-[200px] bg-purple-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="fixed top-[20%] right-[-10%] w-[150px] h-[150px] bg-blue-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+      {/* BACKGROUND GLOW EFFECTS */}
+      <div className="fixed top-[-10%] left-[20%] w-[200px] h-[200px] bg-purple-900/30 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="fixed top-[20%] right-[-10%] w-[150px] h-[150px] bg-blue-900/20 rounded-full blur-[80px] pointer-events-none"></div>
 
-      {/* HEADER: Floating Glass */}
-      <div className="pt-6 px-4 sticky top-0 z-50">
-         <div className="bg-[#111]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-4 flex justify-between items-center shadow-lg">
+      {/* HEADER */}
+      <div className="pt-4 px-4 sticky top-0 z-50">
+         <div className="bg-[#111]/90 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex justify-between items-center shadow-lg">
              <div className="flex items-center gap-2">
-                {/* Logo Text dengan Gradient Neynar Style */}
-                <h1 className="text-lg font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
+                <h1 className="text-lg font-extrabold tracking-tight text-white">
                     Kesimpulan.
                 </h1>
              </div>
-             {/* Profil Kecil (Dikunci Ukuran) */}
-             <button onClick={() => setActiveTab('profile')} className="w-8 h-8 rounded-full bg-[#222] flex items-center justify-center overflow-hidden border border-white/10" style={{width:'32px', height:'32px', minWidth:'32px'}}>
+             {/* Profile Pic dengan Ukuran Terkunci */}
+             <button onClick={() => setActiveTab('profile')} className="rounded-full bg-[#222] flex items-center justify-center overflow-hidden border border-white/10" style={{width:'32px', height:'32px', minWidth:'32px'}}>
                  {userContext?.pfpUrl ? (
                      <img src={userContext.pfpUrl} alt="pfp" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                  ) : (
@@ -112,34 +108,29 @@ export default function Home() {
           <div className="space-y-6 animate-in fade-in duration-500">
             {!quizData ? (
                 <>
-                   {/* Main Hero Card */}
-                   <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-1 relative overflow-hidden group">
-                      {/* Border Gradient Halus saat Hover/Active */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-50 pointer-events-none"></div>
-                      
+                   {/* Main Card */}
+                   <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-1 relative overflow-hidden">
                       <div className="bg-[#0f0f0f] rounded-[20px] p-6 space-y-5 relative z-10">
                           <div className="text-center space-y-2">
                              <h2 className="text-2xl font-bold text-white">Ringkas Apapun.</h2>
                              <p className="text-sm text-gray-400 leading-relaxed">
-                                Tempel link artikel atau Cast.<br/>Dapatkan visualisasi dalam hitungan detik.
+                                Tempel link artikel atau Cast.<br/>AI akan membuat ringkasan visual.
                              </p>
                           </div>
 
-                          {/* Input Field Dark */}
                           <div className="relative">
                             <textarea 
-                                className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl p-4 text-[15px] text-white placeholder-gray-600 outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all h-32 resize-none"
+                                className="w-full bg-[#1a1a1a] border border-white/10 rounded-xl p-4 text-[15px] text-white placeholder-gray-600 outline-none focus:border-orange-500/50 transition-all h-32 resize-none"
                                 placeholder="Tempel link (https://...) di sini..."
                                 value={inputText}
                                 onChange={(e) => setInputText(e.target.value)}
                             />
                           </div>
 
-                          {/* Tombol Utama (Gradient Neynar) */}
                           <button 
                             onClick={handleGenerate}
                             disabled={loading || !inputText}
-                            className={`w-full py-4 rounded-xl font-bold text-white shadow-lg shadow-orange-900/20 transition-all active:scale-[0.98] flex justify-center items-center gap-2 ${
+                            className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-2 ${
                                 loading 
                                 ? 'bg-[#222] text-gray-500 cursor-not-allowed' 
                                 : 'bg-gradient-to-r from-orange-500 to-red-500 hover:brightness-110'
@@ -153,11 +144,7 @@ export default function Home() {
 
                    {/* Support Card */}
                    <div className="bg-[#0f0f0f] border border-white/5 rounded-2xl p-5 text-center space-y-4">
-                      <div>
-                          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Support Developer</p>
-                          <p className="text-xs text-gray-400">Bantu server tetap hidup dengan tip kecil.</p>
-                      </div>
-                      
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Support Developer</p>
                       <div className="grid grid-cols-2 gap-3">
                           <button onClick={() => sdk.actions.openUrl("https://warpcast.com/unclekal")} className="py-3 bg-[#1a1a1a] hover:bg-[#222] rounded-xl text-xs font-bold text-white border border-white/10 transition-colors">
                               Follow
@@ -172,7 +159,7 @@ export default function Home() {
                 // --- RESULT VIEW ---
                 <div className="space-y-6 animate-in slide-in-from-bottom-4">
                     
-                    {/* Visual Map (White bg agar kontras & jelas) */}
+                    {/* Visual Map (Bg Putih agar terbaca) */}
                     <div className="bg-white rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                          <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                              <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
@@ -198,9 +185,7 @@ export default function Home() {
                     {/* Quiz Section */}
                     <div className="bg-[#111] border border-white/10 rounded-2xl p-6">
                         <div className="flex items-center gap-2 mb-5">
-                            <div className="bg-yellow-500/20 p-1.5 rounded-lg text-yellow-500">
-                                <Zap size={16}/>
-                            </div>
+                            <Zap size={16} className="text-yellow-500"/>
                             <h3 className="text-sm font-bold text-white">Cek Pemahaman</h3>
                         </div>
                         
@@ -234,10 +219,7 @@ export default function Home() {
                         </button>
                     )}
 
-                    <button 
-                        onClick={() => { setQuizData(null); setInputText(""); }}
-                        className="w-full py-4 rounded-xl text-sm font-bold text-gray-500 hover:text-white transition-colors bg-[#111] border border-white/5"
-                    >
+                    <button onClick={() => { setQuizData(null); setInputText(""); }} className="w-full py-4 rounded-xl text-sm font-bold text-gray-500 hover:text-white transition-colors bg-[#111] border border-white/5">
                         Mulai Baru
                     </button>
                 </div>
@@ -248,19 +230,12 @@ export default function Home() {
         {/* === TAB 2: LEADERBOARD === */}
         {activeTab === 'leaderboard' && (
              <div className="space-y-6 animate-in fade-in">
-                <div className="bg-[#111] border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden">
-                    {/* Glow effect di belakang angka */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-orange-500/10 rounded-full blur-[60px]"></div>
-                    
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-2 relative z-10">Komunitas Terpintar</p>
-                    <h2 className="text-4xl font-black text-white tracking-tighter relative z-10">/base</h2>
-                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 font-mono relative z-10">
+                <div className="bg-[#111] border border-white/10 rounded-3xl p-8 text-center relative">
+                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-2">Komunitas Terpintar</p>
+                    <h2 className="text-4xl font-black text-white tracking-tighter">/base</h2>
+                    <div className="mt-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 font-mono">
                         <Trophy size={12} className="text-yellow-500"/> 14,203 Pts
                     </div>
-                </div>
-                
-                <div className="text-center py-8">
-                    <p className="text-sm text-gray-600">Leaderboard global akan segera hadir.</p>
                 </div>
              </div>
         )}
@@ -269,7 +244,7 @@ export default function Home() {
         {activeTab === 'profile' && (
             <div className="space-y-6 animate-in fade-in">
                 <div className="bg-[#111] border border-white/10 rounded-3xl p-8 text-center">
-                    <div className="w-24 h-24 bg-[#1a1a1a] rounded-full mx-auto mb-5 overflow-hidden border-4 border-[#222] flex items-center justify-center relative">
+                    <div className="w-24 h-24 bg-[#1a1a1a] rounded-full mx-auto mb-5 overflow-hidden border-4 border-[#222] flex items-center justify-center" style={{width:'96px', height:'96px'}}>
                         {userContext?.pfpUrl ? (
                             <img src={userContext.pfpUrl} alt="pfp" style={{width:'100%', height:'100%', objectFit:'cover'}}/>
                         ) : (
@@ -277,31 +252,19 @@ export default function Home() {
                         )}
                     </div>
                     <h2 className="text-2xl font-bold text-white mb-1">@{userContext?.username || "Guest"}</h2>
-                    <p className="text-sm text-gray-500 mb-6">Level 1 Reader</p>
                     
-                     <button 
-                        onClick={handleAddFrame}
-                        disabled={isFrameAdded}
-                        className={`w-full py-3 rounded-xl text-sm font-bold border transition-all ${isFrameAdded ? 'bg-green-500/10 border-green-500 text-green-500' : 'bg-white text-black border-white hover:bg-gray-200'}`}
-                    >
+                     <button onClick={handleAddFrame} disabled={isFrameAdded} className={`mt-4 w-full py-3 rounded-xl text-sm font-bold border transition-all ${isFrameAdded ? 'bg-green-500/10 border-green-500 text-green-500' : 'bg-white text-black border-white'}`}>
                         {isFrameAdded ? "Notifikasi Aktif" : "Aktifkan Notifikasi"}
                     </button>
                 </div>
                 
                 <div className="space-y-3">
-                    <button onClick={handleTip} className="w-full p-4 flex items-center justify-between bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-2xl transition-colors group">
+                    <button onClick={handleTip} className="w-full p-4 flex items-center justify-between bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-2xl transition-colors">
                         <div className="flex items-center gap-4">
                             <div className="bg-blue-500/20 p-2.5 rounded-xl text-blue-400"><Wallet size={20} /></div>
                             <span className="font-bold text-sm text-gray-200">Tip 1 USDC</span>
                         </div>
-                        <ArrowRight size={18} className="text-gray-600 group-hover:text-white transition-colors"/>
-                    </button>
-                    <button onClick={handleTip} className="w-full p-4 flex items-center justify-between bg-[#1a1a1a] hover:bg-[#222] border border-white/5 rounded-2xl transition-colors group">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-purple-500/20 p-2.5 rounded-xl text-purple-400"><Sparkles size={20} /></div>
-                            <span className="font-bold text-sm text-gray-200">Tip 5 USDC</span>
-                        </div>
-                        <ArrowRight size={18} className="text-gray-600 group-hover:text-white transition-colors"/>
+                        <ArrowRight size={18} className="text-gray-600"/>
                     </button>
                 </div>
             </div>
@@ -309,17 +272,17 @@ export default function Home() {
 
       </div>
 
-      {/* BOTTOM NAV: Glassmorphism Fixed */}
-      <nav className="fixed bottom-0 w-full bg-[#050505]/80 backdrop-blur-xl border-t border-white/5 py-2 px-6 pb-6 z-40 flex justify-around">
-            <button onClick={() => setActiveTab('quiz')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'quiz' ? 'text-orange-500' : 'text-gray-600 hover:text-gray-400'}`}>
+      {/* BOTTOM NAV */}
+      <nav className="fixed bottom-0 w-full bg-[#050505]/90 backdrop-blur-xl border-t border-white/5 py-2 px-6 pb-6 z-40 flex justify-around">
+            <button onClick={() => setActiveTab('quiz')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'quiz' ? 'text-orange-500' : 'text-gray-600'}`}>
                 <Sparkles size={24} strokeWidth={activeTab === 'quiz' ? 2.5 : 2}/>
                 <span className="text-[10px] font-bold mt-1">Home</span>
             </button>
-            <button onClick={() => setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'leaderboard' ? 'text-orange-500' : 'text-gray-600 hover:text-gray-400'}`}>
+            <button onClick={() => setActiveTab('leaderboard')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'leaderboard' ? 'text-orange-500' : 'text-gray-600'}`}>
                 <Trophy size={24} strokeWidth={activeTab === 'leaderboard' ? 2.5 : 2}/>
                 <span className="text-[10px] font-bold mt-1">Rank</span>
             </button>
-            <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'profile' ? 'text-orange-500' : 'text-gray-600 hover:text-gray-400'}`}>
+            <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 w-16 p-1 rounded-xl transition-all ${activeTab === 'profile' ? 'text-orange-500' : 'text-gray-600'}`}>
                 <User size={24} strokeWidth={activeTab === 'profile' ? 2.5 : 2}/>
                 <span className="text-[10px] font-bold mt-1">Me</span>
             </button>
