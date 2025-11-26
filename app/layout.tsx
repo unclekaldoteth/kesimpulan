@@ -2,26 +2,46 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  weight: ['400', '500', '600', '700', '800'], 
+  variable: '--font-inter', 
+});
 
 const appUrl = "https://kesimpulan.vercel.app";
+
+// --- KONFIGURASI MINI APP (JSON BLOB) ---
+// Ini format baru sesuai screenshot github yang lu kasih
+const frame = {
+  version: "next",
+  imageUrl: `${appUrl}/opengraph-image.png`,
+  button: {
+    title: "Buka App",
+    action: {
+      type: "launch_frame",
+      name: "Kesimpulan",
+      url: appUrl,
+      splashImageUrl: `${appUrl}/icon.png`,
+      splashBackgroundColor: "#000000",
+    },
+  },
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: "Kesimpulan",
-  description: "Ringkasan visual instan dari artikel & cast.",
+  description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir & kuis instan.",
   
-  // Open Graph (Untuk WhatsApp/Twitter)
   openGraph: {
     title: "Kesimpulan",
-    description: "Ubah teks panjang jadi diagram & kuis.",
+    description: "Ringkas artikel panjang jadi visual & kuis.",
     url: appUrl,
     siteName: "Kesimpulan",
     images: [
       {
         url: `${appUrl}/opengraph-image.png`,
         width: 1200,
-        height: 630, 
+        height: 630,
         alt: "Kesimpulan Preview",
       },
     ],
@@ -29,27 +49,18 @@ export const metadata: Metadata = {
     type: "website",
   },
   
-  // --- FARCASTER MINI APP METADATA (CLEAN VERSION) ---
+  // --- META TAG KHUSUS (SESUAI STANDAR BARU) ---
   other: {
-    // Versi wajib
-    "fc:frame": "vNext",
-    
-    // Gambar: GUNAKAN 1.91:1 (Landscape) karena ini standar paling aman
-    // Pastikan gambarnya persegi panjang (1200x630)
-    "fc:frame:image": `${appUrl}/opengraph-image.png`,
-    "fc:frame:image:aspect_ratio": "1.91:1",
-    
-    // Tombol Peluncuran (Cuma butuh 3 baris ini)
-    "fc:frame:button:1": "Buka App",
-    "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": appUrl,
-    
-    // HAPUS post_url. 
-    // Untuk Mini App (Link Button), post_url sering bikin error kalau webhooknya gak sempurna.
+    // Kita masukkan JSON string ke dalam content
+    "fc:frame": JSON.stringify(frame),
   },
 };
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
   themeColor: "#000000",
 };
 
@@ -60,8 +71,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#050505] text-white`}>
-        {children}
+      <body className={`${inter.className} antialiased bg-[#050505] text-white`}>
+        <div className="min-h-screen safe-area-view">
+            {children}
+        </div>
       </body>
     </html>
   );
