@@ -143,7 +143,7 @@ export default function Home() {
         shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
     }
 
-    const fullText = `${shareText}\n\nCek ringkasan lengkapnya di gambar 👇`;
+    const fullText = `${shareText}\n\nBuat Kesimpulan Mu Sendiri👇`;
 
     // 4. RAKIT URL SHARE (Arahkan ke /share dengan parameter summary)
     const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(summaryForImage)}`;
