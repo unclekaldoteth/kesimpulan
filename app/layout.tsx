@@ -2,30 +2,26 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ 
-  subsets: ["latin"],
-  weight: ['400', '500', '600', '700', '800'], 
-  variable: '--font-inter', 
-});
+const inter = Inter({ subsets: ["latin"] });
 
 const appUrl = "https://kesimpulan.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: "Kesimpulan",
-  description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir & kuis instan.",
+  description: "Ringkasan visual instan dari artikel & cast.",
   
-  // --- OPEN GRAPH (Standar Web2) ---
+  // Open Graph (Untuk WhatsApp/Twitter)
   openGraph: {
     title: "Kesimpulan",
-    description: "Ringkas artikel panjang jadi visual & kuis.",
+    description: "Ubah teks panjang jadi diagram & kuis.",
     url: appUrl,
     siteName: "Kesimpulan",
     images: [
       {
         url: `${appUrl}/opengraph-image.png`,
-        width: 1080, // Sesuaikan dengan spec 1:1
-        height: 1080,
+        width: 1200,
+        height: 630, 
         alt: "Kesimpulan Preview",
       },
     ],
@@ -33,31 +29,28 @@ export const metadata: Metadata = {
     type: "website",
   },
   
-  // --- FARCASTER FRAME SPECIFICATION (v2) ---
+  // --- FARCASTER MINI APP METADATA (CLEAN VERSION) ---
   other: {
+    // Versi wajib
     "fc:frame": "vNext",
     
-    // SPEC RULE: Image harus < 3MB. 
-    // Gunakan Aspect Ratio 1:1 (Kotak) agar tampilan di feed lebih tinggi/besar.
+    // Gambar: GUNAKAN 1.91:1 (Landscape) karena ini standar paling aman
+    // Pastikan gambarnya persegi panjang (1200x630)
     "fc:frame:image": `${appUrl}/opengraph-image.png`,
-    "fc:frame:image:aspect_ratio": "1:1", 
+    "fc:frame:image:aspect_ratio": "1.91:1",
     
-    // Tombol Launch (Link Action)
+    // Tombol Peluncuran (Cuma butuh 3 baris ini)
     "fc:frame:button:1": "Buka App",
     "fc:frame:button:1:action": "link",
     "fc:frame:button:1:target": appUrl,
     
-    // Fallback Webhook (Required by some validators for health check)
-    "fc:frame:post_url": `${appUrl}/api/webhook`,
+    // HAPUS post_url. 
+    // Untuk Mini App (Link Button), post_url sering bikin error kalau webhooknya gak sempurna.
   },
 };
 
 export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#000000", // Sesuai warna bg app
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -67,10 +60,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased bg-[#050505] text-white`}>
-        <div className="min-h-screen safe-area-view">
-            {children}
-        </div>
+      <body className={`${inter.className} bg-[#050505] text-white`}>
+        {children}
       </body>
     </html>
   );
