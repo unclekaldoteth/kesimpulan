@@ -121,40 +121,48 @@ export default function Home() {
     else showToast("Kurang tepat, coba lagi.", 'error');
   };
 
-      const handleShareResult = () => {
-  if (!quizData) return;
+        const handleShareResult = (data: any) => {
+    if (!data) {
+      showToast("Belum ada ringkasan untuk dibagikan.", "error");
+      return;
+    }
 
-  const rawTopic: string = quizData.summary || "topik ini";
-  const cleanTopic =
-    rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
+    // 1. Ambil topik dari summary
+    const rawTopic: string = data.summary || "topik ini";
+    const cleanTopic =
+      rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
-  const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
-  const match = inputText.match(farcasterRegex);
+    // 2. Deteksi apakah input adalah link cast Warpcast / Farcaster
+    const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
+    const match = inputText.match(farcasterRegex);
 
-  let shareText = "";
-  if (match && match[2]) {
-    const username = match[2];
-    shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
-  } else {
-    shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
-  }
+    let shareText = "";
+    if (match && match[2]) {
+      // contoh: https://warpcast.com/unclekal.eth/0x12345 → username = unclekal.eth
+      const username = match[2];
+      shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
+    } else {
+      shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
+    }
 
-  const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
+    const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
 
-  const summaryForImage = (quizData.summary as string)
-    .replace(/\n/g, " ")
-    .slice(0, 200);
+    // 3. Summary khusus buat gambar (dipotong biar nggak kepanjangan)
+    const summaryForImage = (data.summary as string)
+      .replace(/\n/g, " ")
+      .slice(0, 200);
 
-  const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
-    summaryForImage
-  )}`;
+    // 4. Embed URL ke halaman /share → di situ OG image & frame sudah dinamis
+    const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
+      summaryForImage
+    )}`;
 
-  const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
-    fullText
-  )}&embeds[]=${encodeURIComponent(embedUrl)}`;
+    const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+      fullText
+    )}&embeds[]=${encodeURIComponent(embedUrl)}`;
 
-  sdk.actions.openUrl(composeUrl);
-};
+    sdk.actions.openUrl(composeUrl);
+  };
 
 
 
@@ -290,7 +298,7 @@ export default function Home() {
                     </div>
                     {isCorrect && (
                         <div className="flex flex-col gap-3 animate-pulse">
-                            <button onClick={handleShareResult} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil</button>
+                            <button onClick={() => handleShareResult(quizData)} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil</button>
                             <button onClick={() => { navigator.clipboard.writeText(quizData.summary); showToast("Ringkasan disalin!"); }} className="w-full py-3 rounded-xl font-bold text-gray-400 bg-[#1a1a1a] border border-white/5 hover:bg-[#222] flex justify-center items-center gap-2"><Clipboard size={16} /> Salin Ringkasan</button>
                         </div>
                     )}
