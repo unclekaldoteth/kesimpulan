@@ -35,12 +35,16 @@ export const metadata: Metadata = {
   
   other: {
     "fc:frame": "vNext",
-    "fc:frame:image": `${appUrl}/opengraph-image.png`,
-    "fc:frame:image:aspect_ratio": "1:1",
+    "fc:frame:image": "https://kesimpulan.vercel.app/opengraph-image.png",
+    "fc:frame:image:aspect_ratio": "1.91:1",
+    
+    // Tombol Utama
     "fc:frame:button:1": "Buka Kesimpulan",
     "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target": appUrl,
-    "fc:frame:post_url": `${appUrl}/api/webhook`, 
+    "fc:frame:button:1:target": "https://kesimpulan.vercel.app",
+    
+    // LINK KE API ASLI (Bukan Home lagi)
+    "fc:frame:post_url": "https://kesimpulan.vercel.app/api/webhook", 
   },
 };
 
