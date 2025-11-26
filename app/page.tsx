@@ -121,14 +121,18 @@ export default function Home() {
     else showToast("Kurang tepat, coba lagi.", 'error');
   };
 
-    const handleShareResult = () => {
-    if (!quizData) return;
+      const handleShareResult = () => {
+    if (!quizData) {
+      showToast("Belum ada ringkasan untuk dibagikan.", "error");
+      return;
+    }
 
-    // 1. Teks cast (seperti versi lama, tapi dirapikan sedikit)
-    const rawTopic = quizData.summary || "topik ini";
+    // 1. Siapkan teks caption
+    const rawTopic: string = quizData.summary || "topik ini";
     const cleanTopic =
       rawTopic.split(".")[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
+    // Deteksi link Warpcast / Farcaster
     const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
     const match = inputText.match(farcasterRegex);
 
@@ -142,23 +146,23 @@ export default function Home() {
 
     const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
 
-    // 2. Summary khusus untuk gambar (boleh lebih panjang)
+    // 2. Summary khusus untuk gambar (max ~200 char)
     const summaryForImage = (quizData.summary as string)
       .replace(/\n/g, " ")
       .slice(0, 200);
 
-    // 3. URL embed khusus share -> akan generate OG image dinamis
+    // 3. URL embed ke halaman /share (yang pakai OG dynamic)
     const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
       summaryForImage
     )}`;
 
-    // 4. Compose cast Warpcast
     const composeUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(
       fullText
     )}&embeds[]=${encodeURIComponent(embedUrl)}`;
 
     sdk.actions.openUrl(composeUrl);
   };
+
 
   const handleTip = async (amountEth: string) => {
     const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; 
