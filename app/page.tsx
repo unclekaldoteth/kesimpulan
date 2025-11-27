@@ -236,7 +236,7 @@ export default function Home() {
                    <div className="bg-[#0f0f0f] border border-white/5 rounded-2xl p-5 text-center space-y-4">
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Support Developer</p>
                       <div className="grid grid-cols-2 gap-3">
-                          <button onClick={() => sdk.actions.openUrl("https://warpcast.com/unclekal")} className="py-3 bg-[#1a1a1a] hover:bg-[#222] rounded-xl text-xs font-bold text-white border border-white/10 transition-colors">Follow</button>
+                          <button onClick={() => sdk.actions.openUrl("https://warpcast.com/unclekal.eth")} className="py-3 bg-[#1a1a1a] hover:bg-[#222] rounded-xl text-xs font-bold text-white border border-white/10 transition-colors">Follow</button>
                           <button onClick={() => handleTip('5')} className="py-3 bg-[#1a1a1a] hover:bg-[#222] rounded-xl text-xs font-bold text-white border border-white/10 transition-colors flex justify-center items-center gap-1">Tip <span className="text-red-500">❤️</span></button>
                       </div>
                    </div>
