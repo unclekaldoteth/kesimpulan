@@ -22,7 +22,7 @@ export default function Home() {
   const [userContext, setUserContext] = useState<any>(null);
   const [isFrameAdded, setIsFrameAdded] = useState(false);
   
-  // State untuk status Minting
+  // State Minting
   const [isMinting, setIsMinting] = useState(false);
   
   const mermaidRef = useRef<HTMLDivElement>(null);
@@ -120,7 +120,7 @@ export default function Home() {
     let shareText = "";
     if (match && match[2]) {
         const username = match[2];
-        shareText = `Baru aja dapet ringkasan visual dari cast @${username}: "${cleanTopic}" ✨`;
+        shareText = `Baru aja dapet ringkasan visual cast @${username}: "${cleanTopic}" ✨`;
     } else {
         shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
     }
@@ -129,23 +129,20 @@ export default function Home() {
     sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${embedUrl}`);
   };
 
-  // --- LOGIKA MINTING (BAYAR DULU BARU DAPAT) ---
+  // --- LOGIKA MINTING (GRATIS - 0 ETH) ---
   const handleMint = async () => {
     if (isMinting) return;
     setIsMinting(true);
 
-    // 1. Definisikan Penerima & Harga
-    const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; // Ganti dengan Wallet Lu
-    // Harga Mint: 0.0001 ETH (Sekitar $0.30 - Murah buat testing)
-    // 0.0001 ETH = 100000000000000 Wei
-    const priceWei = "100000000000000"; 
-    const priceHex = "0x" + BigInt(priceWei).toString(16);
+    const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; // Ganti Wallet Lu
+    
+    // HARGA 0 ETH (Gratis, User cuma bayar gas)
+    const priceWei = "0"; 
+    const priceHex = "0x0";
 
     try {
-      showToast("Menyiapkan transaksi...", 'success');
+      showToast("Menyiapkan Free Mint...", 'success');
       
-      // 2. Request Transaksi ke Farcaster Wallet
-      // Ini akan memunculkan popup "Review Transaction" seperti di screenshot
       const provider = (sdk.wallet as any).ethProvider;
       if (!provider) { showToast("Wallet tidak ditemukan", 'error'); setIsMinting(false); return; }
 
@@ -155,17 +152,16 @@ export default function Home() {
           {
             to: devWallet,
             value: priceHex, 
-            data: "0x", // Kosong karena transfer ETH biasa (bukan Smart Contract)
+            data: "0x", 
           },
         ],
       });
 
-      // 3. Jika Sukses (User klik Confirm)
       if (txHash) {
-        showToast("Pembayaran Sukses! Menyimpan gambar...");
+        showToast("Minting Sukses! Menyimpan gambar...");
         console.log("Mint Tx Hash:", txHash);
         
-        // 4. Download Gambar sebagai "Hadiah"
+        // Auto Download setelah bayar gas fee
         await downloadImage();
       }
     } catch (e) {
@@ -176,7 +172,7 @@ export default function Home() {
     }
   };
 
-  // Fungsi Helper: Download Gambar
+  // Fungsi Download (Hanya dipanggil setelah Mint sukses)
   const downloadImage = async () => {
     if (mermaidRef.current === null) return;
     try {
@@ -185,13 +181,13 @@ export default function Home() {
       link.download = `kesimpulan-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
-      showToast("Gambar berhasil disimpan ke Galeri! 🖼️");
+      showToast("NFT berhasil disimpan ke Galeri! 🖼️");
     } catch (err) {
       showToast("Gagal menyimpan gambar.", 'error');
     }
   };
 
-  // Fitur Tip Biasa (Tab Profile)
+  // Fitur Tip Biasa
   const handleTip = async (amountEth: string) => {
     const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; 
     const amountWei = amountEth === '1' ? BigInt(300000000000000) : BigInt(1500000000000000);
@@ -218,7 +214,6 @@ export default function Home() {
           </div>
       </div>
 
-      {/* BACKGROUND & HEADER */}
       <div className="fixed top-[-10%] left-[20%] w-[200px] h-[200px] bg-purple-900/30 rounded-full blur-[100px] pointer-events-none"></div>
       <div className="fixed top-[20%] right-[-10%] w-[150px] h-[150px] bg-blue-900/20 rounded-full blur-[80px] pointer-events-none"></div>
 
@@ -234,11 +229,9 @@ export default function Home() {
       </div>
 
       <div className="px-4 pt-6 max-w-md mx-auto space-y-6 relative z-10">
-        
         {activeTab === 'quiz' && (
           <div className="space-y-6 animate-in fade-in duration-500">
             {!quizData ? (
-                // INPUT VIEW (Sama)
                 <>
                    <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-1 relative overflow-hidden">
                       <div className="bg-[#0f0f0f] rounded-[20px] p-6 space-y-5 relative z-10">
@@ -254,7 +247,9 @@ export default function Home() {
                                 onChange={(e) => setInputText(e.target.value)}
                             />
                             {!inputText && (
-                                <button onClick={handlePaste} className="absolute bottom-3 right-3 bg-[#333] hover:bg-[#444] text-xs text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors border border-white/10"><Clipboard size={12} /> Tempel</button>
+                                <button onClick={handlePaste} className="absolute bottom-3 right-3 bg-[#333] hover:bg-[#444] text-xs text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors border border-white/10">
+                                    <Clipboard size={12} /> Tempel
+                                </button>
                             )}
                             {inputText && <button onClick={() => setInputText("")} className="absolute top-3 right-3 text-gray-500 hover:text-white"><XCircle size={18} /></button>}
                           </div>
@@ -263,6 +258,7 @@ export default function Home() {
                           </button>
                       </div>
                    </div>
+                   
                    <div className="bg-[#0f0f0f] border border-white/5 rounded-2xl p-5 text-center space-y-4">
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Support Developer</p>
                       <div className="grid grid-cols-2 gap-3">
@@ -275,20 +271,13 @@ export default function Home() {
                 // --- RESULT VIEW ---
                 <div className="space-y-6 animate-in slide-in-from-bottom-4">
                     
-                    {/* VISUAL MAP CARD */}
+                    {/* VISUAL MAP CARD (Tombol Save Dihapus) */}
                     <div className="bg-white rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative">
                          <div className="px-5 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                              <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
                                 <Share2 size={12} className="text-orange-500"/> Alur Pikir
                              </div>
-                             
-                             {/* TOMBOL DOWNLOAD (Gratis, tanpa bayar) */}
-                             <button 
-                                onClick={downloadImage}
-                                className="flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-[10px] font-bold text-gray-600 transition-colors"
-                             >
-                                <Download size={10} /> Save
-                             </button>
+                             {/* TOMBOL SAVE DIHAPUS DARI SINI BIAR FOKUS KE MINT */}
                          </div>
                         
                         <div ref={mermaidRef} className="p-6 flex justify-center bg-white items-center overflow-x-auto min-h-[200px]">
@@ -323,7 +312,7 @@ export default function Home() {
                         <div className="flex flex-col gap-3 animate-pulse">
                             <button onClick={handleShareResult} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil</button>
                             
-                            {/* TOMBOL MINT (BAYAR 0.0001 ETH) */}
+                            {/* TOMBOL MINT (FREE 0 ETH) */}
                             <button 
                                 onClick={handleMint} 
                                 disabled={isMinting}
@@ -336,7 +325,7 @@ export default function Home() {
                                 {isMinting ? (
                                     <>Processing...</>
                                 ) : (
-                                    <><ImageIcon size={18} /> Mint as NFT (0.0001 ETH)</>
+                                    <><ImageIcon size={18} /> Mint as NFT (Free)</>
                                 )}
                             </button>
                         </div>
