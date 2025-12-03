@@ -7,7 +7,7 @@ import {
   CheckCircle, XCircle, Wallet, Clipboard, Loader2, Heart, Download, Image as ImageIcon
 } from 'lucide-react';
 import Mermaid from 'react-mermaid2';
-import { toPng } from 'html-to-image'; // Library baru buat foto diagram
+import { toPng } from 'html-to-image';
 
 type TabType = 'quiz' | 'leaderboard' | 'profile';
 
@@ -22,10 +22,11 @@ export default function Home() {
   const [userContext, setUserContext] = useState<any>(null);
   const [isFrameAdded, setIsFrameAdded] = useState(false);
   
-  // REF: Ini buat nandain elemen mana yang mau difoto
+  // State untuk status Minting
+  const [isMinting, setIsMinting] = useState(false);
+  
   const mermaidRef = useRef<HTMLDivElement>(null);
 
-  // State Toast
   const [toast, setToast] = useState<{show: boolean, message: string, type: 'success'|'error'}>({
     show: false, message: '', type: 'success'
   });
@@ -119,7 +120,7 @@ export default function Home() {
     let shareText = "";
     if (match && match[2]) {
         const username = match[2];
-        shareText = `Baru aja dapet ringkasan visual dari cast @${username} tentang "${cleanTopic}" ✨`;
+        shareText = `Baru aja dapet ringkasan visual dari cast @${username}: "${cleanTopic}" ✨`;
     } else {
         shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
     }
@@ -128,6 +129,69 @@ export default function Home() {
     sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${embedUrl}`);
   };
 
+  // --- LOGIKA MINTING (BAYAR DULU BARU DAPAT) ---
+  const handleMint = async () => {
+    if (isMinting) return;
+    setIsMinting(true);
+
+    // 1. Definisikan Penerima & Harga
+    const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; // Ganti dengan Wallet Lu
+    // Harga Mint: 0.0001 ETH (Sekitar $0.30 - Murah buat testing)
+    // 0.0001 ETH = 100000000000000 Wei
+    const priceWei = "100000000000000"; 
+    const priceHex = "0x" + BigInt(priceWei).toString(16);
+
+    try {
+      showToast("Menyiapkan transaksi...", 'success');
+      
+      // 2. Request Transaksi ke Farcaster Wallet
+      // Ini akan memunculkan popup "Review Transaction" seperti di screenshot
+      const provider = (sdk.wallet as any).ethProvider;
+      if (!provider) { showToast("Wallet tidak ditemukan", 'error'); setIsMinting(false); return; }
+
+      const txHash = await provider.request({
+        method: "eth_sendTransaction",
+        params: [
+          {
+            to: devWallet,
+            value: priceHex, 
+            data: "0x", // Kosong karena transfer ETH biasa (bukan Smart Contract)
+          },
+        ],
+      });
+
+      // 3. Jika Sukses (User klik Confirm)
+      if (txHash) {
+        showToast("Pembayaran Sukses! Menyimpan gambar...");
+        console.log("Mint Tx Hash:", txHash);
+        
+        // 4. Download Gambar sebagai "Hadiah"
+        await downloadImage();
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("Minting dibatalkan.", 'error');
+    } finally {
+      setIsMinting(false);
+    }
+  };
+
+  // Fungsi Helper: Download Gambar
+  const downloadImage = async () => {
+    if (mermaidRef.current === null) return;
+    try {
+      const dataUrl = await toPng(mermaidRef.current, { cacheBust: true, backgroundColor: '#ffffff' });
+      const link = document.createElement('a');
+      link.download = `kesimpulan-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+      showToast("Gambar berhasil disimpan ke Galeri! 🖼️");
+    } catch (err) {
+      showToast("Gagal menyimpan gambar.", 'error');
+    }
+  };
+
+  // Fitur Tip Biasa (Tab Profile)
   const handleTip = async (amountEth: string) => {
     const devWallet = "0x0d2834025917Eb1975ab3c4c2e2627bE1899E730"; 
     const amountWei = amountEth === '1' ? BigInt(300000000000000) : BigInt(1500000000000000);
@@ -135,38 +199,12 @@ export default function Home() {
     try {
       showToast("Membuka dompet...", 'success');
       const provider = (sdk.wallet as any).ethProvider;
-      if (!provider) { showToast("Wallet tidak ditemukan", 'error'); return; }
       const txHash = await provider.request({
         method: "eth_sendTransaction",
         params: [{ to: devWallet, value: hexValue, data: "0x" }],
       });
       if (txHash) showToast("Terima kasih supportnya! ❤️");
     } catch (e) { showToast("Transaksi dibatalkan", 'error'); }
-  };
-
-  // --- FITUR BARU: CAPTURE IMAGE ---
-  const handleCapture = async () => {
-    if (mermaidRef.current === null) {
-      return;
-    }
-    
-    showToast("Menyiapkan gambar...", 'success');
-
-    try {
-      // Ubah DIV menjadi PNG Data URL
-      const dataUrl = await toPng(mermaidRef.current, { cacheBust: true, backgroundColor: '#ffffff' });
-      
-      // Buat Link Download Palsu (Biar kesimpen di HP)
-      const link = document.createElement('a');
-      link.download = 'kesimpulan-alur-pikir.png';
-      link.href = dataUrl;
-      link.click();
-      
-      showToast("Gambar tersimpan! Siap minting.");
-    } catch (err) {
-      console.error(err);
-      showToast("Gagal mengambil gambar", 'error');
-    }
   };
 
   return (
@@ -180,10 +218,10 @@ export default function Home() {
           </div>
       </div>
 
+      {/* BACKGROUND & HEADER */}
       <div className="fixed top-[-10%] left-[20%] w-[200px] h-[200px] bg-purple-900/30 rounded-full blur-[100px] pointer-events-none"></div>
       <div className="fixed top-[20%] right-[-10%] w-[150px] h-[150px] bg-blue-900/20 rounded-full blur-[80px] pointer-events-none"></div>
 
-      {/* HEADER */}
       <div className="pt-4 px-4 sticky top-0 z-50 safe-area-padding">
          <div className="bg-[#111]/90 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex justify-between items-center shadow-lg">
              <div className="flex items-center gap-2">
@@ -200,7 +238,7 @@ export default function Home() {
         {activeTab === 'quiz' && (
           <div className="space-y-6 animate-in fade-in duration-500">
             {!quizData ? (
-                // INPUT VIEW (Tetap sama)
+                // INPUT VIEW (Sama)
                 <>
                    <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-1 relative overflow-hidden">
                       <div className="bg-[#0f0f0f] rounded-[20px] p-6 space-y-5 relative z-10">
@@ -234,7 +272,7 @@ export default function Home() {
                    </div>
                 </>
             ) : (
-                // --- RESULT VIEW (DENGAN TOMBOL MINT/DOWNLOAD) ---
+                // --- RESULT VIEW ---
                 <div className="space-y-6 animate-in slide-in-from-bottom-4">
                     
                     {/* VISUAL MAP CARD */}
@@ -244,16 +282,15 @@ export default function Home() {
                                 <Share2 size={12} className="text-orange-500"/> Alur Pikir
                              </div>
                              
-                             {/* TOMBOL MINT KECIL DI POJOK KARTU */}
+                             {/* TOMBOL DOWNLOAD (Gratis, tanpa bayar) */}
                              <button 
-                                onClick={handleCapture}
-                                className="flex items-center gap-1 px-2 py-1 bg-purple-100 hover:bg-purple-200 rounded text-[10px] font-bold text-purple-700 transition-colors"
+                                onClick={downloadImage}
+                                className="flex items-center gap-1 px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-[10px] font-bold text-gray-600 transition-colors"
                              >
-                                <Download size={10} /> Simpan PNG
+                                <Download size={10} /> Save
                              </button>
                          </div>
                         
-                        {/* REF DIPASANG DI SINI SUPAYA DIV INI YANG DIFOTO */}
                         <div ref={mermaidRef} className="p-6 flex justify-center bg-white items-center overflow-x-auto min-h-[200px]">
                            <div className="mermaid-container text-black w-full flex justify-center text-xs font-bold">
                                <Mermaid chart={quizData.mermaid_chart} />
@@ -282,14 +319,25 @@ export default function Home() {
                         )}
                     </div>
 
-                    {/* AREA TOMBOL SHARE & MINT */}
                     {isCorrect && (
                         <div className="flex flex-col gap-3 animate-pulse">
                             <button onClick={handleShareResult} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil</button>
                             
-                            {/* TOMBOL KHUSUS MINTING */}
-                            <button onClick={handleCapture} className="w-full py-3 rounded-xl font-bold text-purple-300 bg-[#1a1a1a] border border-purple-500/30 hover:bg-[#2a1a2a] flex justify-center items-center gap-2">
-                                <ImageIcon size={16} /> Simpan sbg NFT (PNG)
+                            {/* TOMBOL MINT (BAYAR 0.0001 ETH) */}
+                            <button 
+                                onClick={handleMint} 
+                                disabled={isMinting}
+                                className={`w-full py-4 rounded-xl font-bold text-white border transition-all flex justify-center items-center gap-2 ${
+                                    isMinting 
+                                    ? 'bg-[#222] border-white/5 cursor-wait' 
+                                    : 'bg-pink-600 border-pink-500/50 hover:bg-pink-500 shadow-[0_0_20px_rgba(219,39,119,0.3)]'
+                                }`}
+                            >
+                                {isMinting ? (
+                                    <>Processing...</>
+                                ) : (
+                                    <><ImageIcon size={18} /> Mint as NFT (0.0001 ETH)</>
+                                )}
                             </button>
                         </div>
                     )}
