@@ -36,6 +36,7 @@ export default function Home() {
   // State Minting
   const [isMinting, setIsMinting] = useState(false);
   const [mintedImageUrl, setMintedImageUrl] = useState<string | null>(null);
+  const [mintedTokenUri, setMintedTokenUri] = useState<string | null>(null);
   const mermaidRef = useRef<HTMLDivElement>(null);
 
   // WAGMI HOOKS
@@ -157,30 +158,23 @@ export default function Home() {
     showToast("Silakan mint NFT dulu.", 'error');
     return;
   }
+  const mintedUri = mintedTokenUri || "";
+
   const rawTopic = quizData?.summary || "topik ini";
   const cleanTopic =
     rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
-  const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
-  const match = inputText.match(farcasterRegex);
-  let shareText = "";
-  
-  if (match && match[2]) {
-      const username = match[2];
-      shareText = `Baru aja dapet ringkasan visual cast @${username}: "${cleanTopic}" ✨`;
-  } else {
-      shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
-  }
+  const shareText = `Baru aja mint NFT ringkasan visual: "${cleanTopic}" ✨`;
 
-  const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
+  const fullText = `${shareText}\n\nLihat gambarnya & metadata di sini 👇${mintedUri ? `\n${mintedUri}` : ""}`;
 
   // Embed default kalau belum mint
   const summaryForImage = (quizData?.summary as string)
     .replace(/\n/g, " ")
     .slice(0, 150);
 
-  // Embed hanya pakai NFT (karena sudah mint); fallback ke summary only tidak ditampilkan
-  const embedUrl = `https://kesimpulan.vercel.app/share?image=${encodeURIComponent(mintedImageUrl)}&summary=${encodeURIComponent(summaryForImage)}`;
+  // Embed langsung ke gambar NFT yang sudah dipublikasikan
+  const embedUrl = mintedImageUrl;
 
   sdk.actions.openUrl(
     `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`
@@ -270,6 +264,7 @@ const exportImage = async (): Promise<string | null> => {
 
       // 4) Simpan URL image NFT untuk dipakai share
       setMintedImageUrl(imageUrl);
+      setMintedTokenUri(tokenURI);
 
       // 5) (Opsional) tetap download ke device
       // const link = document.createElement('a');
