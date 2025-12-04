@@ -53,6 +53,12 @@ export default function Home() {
 
   // INIT FARCASTER & AUTO CONNECT WALLET
   useEffect(() => {
+    // restore minted image URL so share uses NFT preview
+    if (typeof window !== 'undefined') {
+      const cached = localStorage.getItem('kesimpulan:mintedImageUrl');
+      if (cached) setMintedImageUrl(cached);
+    }
+
     const initialize = async () => {
       try {
         await sdk.actions.ready();
@@ -269,6 +275,7 @@ const exportImage = async (): Promise<string | null> => {
 
       // 4) Simpan URL image NFT untuk dipakai share
       setMintedImageUrl(imageUrl);
+      if (typeof window !== 'undefined') localStorage.setItem('kesimpulan:mintedImageUrl', imageUrl);
 
       // 5) (Opsional) tetap download ke device
       // const link = document.createElement('a');
@@ -338,8 +345,8 @@ const exportImage = async (): Promise<string | null> => {
                    <div className="bg-[#0a0a0a] border border-white/10 rounded-3xl p-1 relative overflow-hidden">
                       <div className="bg-[#0f0f0f] rounded-[20px] p-6 space-y-5 relative z-10">
                           <div className="text-center space-y-2">
-                             <h2 className="text-2xl font-bold text-white">Ringkas Apapun.</h2>
-                             <p className="text-sm text-gray-400 leading-relaxed">Tempel link artikel atau Cast.<br/>Dapatkan visualisasi instan.</p>
+                             <h2 className="text-2xl font-bold text-white">Ringkas Cast.</h2>
+                             <p className="text-sm text-gray-400 leading-relaxed">Tempel link Cast.<br/>Dapatkan visualisasi instan.</p>
                           </div>
                           <div className="relative">
                             <textarea 
