@@ -36,10 +36,15 @@ export async function POST(req: Request) {
     }
 
     // Build metadata once; we will either upload or fallback to data: URI
+    const summaryText = (summary as string | undefined)?.slice(0, 500) || 'Ringkasan visual dari Kesimpulan.';
+    const placeholderImage = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(
+      summaryText.slice(0, 120)
+    )}`;
+
     const metadata = {
       name: 'Kesimpulan NFT',
-      description: (summary as string | undefined)?.slice(0, 500) || 'Ringkasan visual dari Kesimpulan.',
-      image: imageDataUrl, // default fallback
+      description: summaryText,
+      image: imageDataUrl || placeholderImage, // default fallback; will be replaced if upload succeeds
     };
 
     // Try upload to Supabase if configured
@@ -81,9 +86,13 @@ export async function POST(req: Request) {
       }
     }
 
-    // Fallback: inline metadata via data URI so mint can proceed even without Supabase
-    const tokenURI = `data:application/json;utf8,${encodeURIComponent(JSON.stringify(metadata))}`;
-    return NextResponse.json({ tokenURI, imageUrl: metadata.image });
+    // Fallback: inline metadata via data URI with small payload (no base64 image to avoid oversized calldata)
+    const fallbackMetadata = {
+      ...metadata,
+      image: placeholderImage,
+    };
+    const tokenURI = `data:application/json;utf8,${encodeURIComponent(JSON.stringify(fallbackMetadata))}`;
+    return NextResponse.json({ tokenURI, imageUrl: placeholderImage });
   } catch (error) {
     console.error('mint-metadata error', error);
     return NextResponse.json({ error: 'Gagal menyiapkan metadata.' }, { status: 500 });
