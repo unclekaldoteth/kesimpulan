@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const DEFAULT_SUPABASE_URL = 'https://esolvhnpvfoavgycrwgy.supabase.co';
 const DEFAULT_SUPABASE_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzb2x2aG5wdmZvYXZneWNyd2d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxMzI1MDIsImV4cCI6MjA3OTcwODUwMn0.5Ftxio_WD-2dRhBmMVosu_fYFxjXjhimxLMhZtgHSnY';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzb2x2aG5wdmZvYXZneWNyd2d5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDEzMjUwMiwiZXhwIjoyMDc5NzA4NTAyfQ.w_03lST6letbAI-_X266dXd9hH6H0cWLdjCEf-uCoZs';
 
 const supabaseUrl =
   process.env.SUPABASE_URL ||
@@ -15,9 +15,18 @@ const supabaseUrl =
 const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  DEFAULT_SUPABASE_KEY;
+  '';
+
+// Minimal check: bucket create/list needs service_role key; reject anon/public keys to avoid RLS errors
+const isServiceRoleKey = (key: string) => {
+  try {
+    const payload = key.split('.')[1];
+    const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    return decoded.role === 'service_role';
+  } catch {
+    return false;
+  }
+};
 
 const STORAGE_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'kesimpulan-nft';
 
@@ -47,7 +56,17 @@ export async function POST(req: Request) {
     };
 
     if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase URL/Service Key belum dikonfigurasi' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Supabase URL/Service Key belum dikonfigurasi (butuh SUPABASE_SERVICE_ROLE_KEY di server).' },
+        { status: 500 }
+      );
+    }
+
+    if (!isServiceRoleKey(supabaseKey)) {
+      return NextResponse.json(
+        { error: 'Gunakan SUPABASE_SERVICE_ROLE_KEY (bukan anon/public key) agar bisa akses Storage.' },
+        { status: 500 }
+      );
     }
 
     // Try upload to Supabase; jika gagal, error agar user tahu (tidak fallback ke placeholder)
