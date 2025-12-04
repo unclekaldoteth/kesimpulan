@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -10,28 +11,10 @@ const inter = Inter({
 
 const appUrl = "https://kesimpulan.vercel.app";
 
-// --- KONFIGURASI MINI APP (JSON BLOB) ---
-// Ini format baru sesuai screenshot github yang lu kasih
-const frame = {
-  version: "next",
-  imageUrl: `${appUrl}/opengraph-image.png`,
-  button: {
-    title: "Buat Kesimpulan",
-    action: {
-      type: "launch_frame",
-      name: "Kesimpulan",
-      url: appUrl,
-      splashImageUrl: `${appUrl}/icon.png`,
-      splashBackgroundColor: "#000000",
-    },
-  },
-};
-
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: "Kesimpulan",
   description: "Ringkas artikel panjang dan Cast menjadi visual alur pikir & kuis instan.",
-  
   openGraph: {
     title: "Kesimpulan",
     description: "Ringkas artikel panjang jadi visual & kuis.",
@@ -48,11 +31,21 @@ export const metadata: Metadata = {
     locale: "id_ID",
     type: "website",
   },
-  
-  // --- META TAG KHUSUS (SESUAI STANDAR BARU) ---
   other: {
-    // Kita masukkan JSON string ke dalam content
-    "fc:frame": JSON.stringify(frame),
+    "fc:frame": JSON.stringify({
+      version: "next",
+      imageUrl: `${appUrl}/opengraph-image.png`,
+      button: {
+        title: "Buka App",
+        action: {
+          type: "launch_frame",
+          name: "Kesimpulan",
+          url: appUrl,
+          splashImageUrl: `${appUrl}/icon.png`,
+          splashBackgroundColor: "#000000",
+        },
+      },
+    }),
   },
 };
 
@@ -72,9 +65,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased bg-[#050505] text-white`}>
-        <div className="min-h-screen safe-area-view">
-            {children}
-        </div>
+        <Providers>
+          <div className="min-h-screen safe-area-view">
+              {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );
