@@ -12,6 +12,12 @@ import { toPng } from 'html-to-image';
 // WAGMI IMPORTS
 import { useAccount, useConnect, useSendTransaction } from 'wagmi';
 import { parseEther } from 'viem';
+import { useWriteContract } from 'wagmi';
+import kesimpulanAbi from '@/kesimpulan-miniapp/abi/kesimpulanNFT.json'; // nanti dari compile Hardhat
+
+const KESIMPULAN_NFT_ADDRESS =
+  process.env.NEXT_PUBLIC_KESIMPULAN_NFT_ADDRESS as `0x${string}` | undefined;
+
 
 type TabType = 'quiz' | 'leaderboard' | 'profile';
 
@@ -28,12 +34,14 @@ export default function Home() {
   
   // State Minting
   const [isMinting, setIsMinting] = useState(false);
+  const [mintedImageUrl, setMintedImageUrl] = useState<string | null>(null);
   const mermaidRef = useRef<HTMLDivElement>(null);
 
   // WAGMI HOOKS
   const { connect, connectors } = useConnect();
   const { isConnected } = useAccount();
   const { sendTransactionAsync } = useSendTransaction();
+  const { writeContractAsync } = useWriteContract();
 
   // State Toast
   const [toast, setToast] = useState<{show: boolean, message: string, type: 'success'|'error'}>({
@@ -133,29 +141,39 @@ export default function Home() {
   };
 
   const handleShareResult = () => {
-    const rawTopic = quizData?.summary || "topik ini";
-    const cleanTopic = rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
-    
-    // Logic Smart Caption
-    const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
-    const match = inputText.match(farcasterRegex);
-    let shareText = "";
-    
-    if (match && match[2]) {
-        const username = match[2];
-        shareText = `Baru aja dapet ringkasan visual cast @${username}: "${cleanTopic}" ✨`;
-    } else {
-        shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
-    }
+  const rawTopic = quizData?.summary || "topik ini";
+  const cleanTopic =
+    rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
 
-    const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
-    
-    // Dynamic Image URL
-    const summaryForImage = (quizData?.summary as string).replace(/\n/g, " ").slice(0, 150);
-    const embedUrl = `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(summaryForImage)}`;
-    
-    sdk.actions.openUrl(`https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`);
-  };
+  const farcasterRegex = /(warpcast\.com|farcaster\.xyz)\/([^\/]+)/;
+  const match = inputText.match(farcasterRegex);
+  let shareText = "";
+  
+  if (match && match[2]) {
+      const username = match[2];
+      shareText = `Baru aja dapet ringkasan visual cast @${username}: "${cleanTopic}" ✨`;
+  } else {
+      shareText = `Baru aja dapet ringkasan visual dari Mini App: Kesimpulan tentang "${cleanTopic}" ✨`;
+  }
+
+  const fullText = `${shareText}\n\nCek visualnya di sini 👇`;
+
+  // Embed default kalau belum mint
+  const summaryForImage = (quizData?.summary as string)
+    .replace(/\n/g, " ")
+    .slice(0, 150);
+
+  const defaultEmbedUrl =
+    `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(summaryForImage)}`;
+
+  // Kalau sudah mint → pakai URL NFT image (dari Supabase / metadata)
+  const embedUrl = mintedImageUrl ?? defaultEmbedUrl;
+
+  sdk.actions.openUrl(
+    `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`
+  );
+};
+
 
   // Helper Download Image
   const downloadImage = async () => {
@@ -170,6 +188,24 @@ export default function Home() {
     } catch (err) { showToast("Gagal menyimpan.", 'error'); }
   };
 
+  // Helper: render kartu "Alur Pikir" (mermaidRef) → dataURL PNG
+const exportImage = async (): Promise<string | null> => {
+  if (!mermaidRef.current) return null;
+
+  try {
+    const dataUrl = await toPng(mermaidRef.current, {
+      cacheBust: true,
+      backgroundColor: '#ffffff',
+    });
+
+    return dataUrl; // "data:image/png;base64,..."
+  } catch (err) {
+    console.error(err);
+    showToast("Gagal render gambar.", 'error');
+    return null;
+  }
+};
+
   // --- LOGIKA MINTING (WAGMI FREE) ---
   const handleMint = async () => {
     if (isMinting) return;
@@ -178,19 +214,60 @@ export default function Home() {
 
     try {
       showToast("Menyiapkan Free Mint...", 'success');
-      // Kirim 0 ETH (Gratis, cuma gas)
-      const hash = await sendTransactionAsync({
-        to: devWallet,
-        value: parseEther('0'), 
+
+      if (!KESIMPULAN_NFT_ADDRESS) {
+        showToast("Alamat kontrak belum dikonfigurasi.", 'error');
+        return;
+      }
+
+      // 1) Render "Alur Pikir" menjadi PNG dataURL
+      const dataUrl = await exportImage();
+      if (!dataUrl) return;
+
+      // 2) Kirim ke API untuk upload ke Supabase & buat metadata
+      const res = await fetch('/api/kesimpulan/mint-metadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageDataUrl: dataUrl,
+          summary: quizData?.summary || '',
+        }),
       });
 
-      if (hash) {
-        showToast("Minting Sukses! Menyimpan...");
-        await downloadImage();
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.tokenURI || !json.imageUrl) {
+        showToast(json.error || "Gagal menyiapkan metadata.", 'error');
+        return;
       }
+
+      const { tokenURI, imageUrl } = json as { tokenURI: string; imageUrl: string };
+
+      // 3) Panggil kontrak di Base mainnet: mint(tokenURI)
+      const txHash = await writeContractAsync({
+        abi: kesimpulanAbi,
+        address: KESIMPULAN_NFT_ADDRESS,
+        functionName: 'mint',
+        args: [tokenURI],
+      });
+
+      showToast("Tx dikirim, menunggu konfirmasi...");
+
+      // (Opsional) tunggu confirmation kalau kamu punya publicClient
+      // await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+      // 4) Simpan URL image NFT untuk dipakai share
+      setMintedImageUrl(imageUrl);
+
+      // 5) (Opsional) tetap download ke device
+      // const link = document.createElement('a');
+      // link.download = `kesimpulan-${Date.now()}.png`;
+      // link.href = dataUrl;
+      // link.click();
+
+      showToast("Minting sukses! NFT siap dishare 🎉");
     } catch (e) {
       console.error(e);
-      showToast("Minting dibatalkan.", 'error');
+      showToast("Minting dibatalkan atau gagal.", 'error');
     } finally {
       setIsMinting(false);
     }
