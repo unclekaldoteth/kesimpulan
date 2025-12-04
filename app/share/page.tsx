@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Home from '../page'; // Kita reuse tampilan Home biar gak kerja 2x
+import MainApp from '../components/MainApp'; // Import komponen UI yang baru
 
 type Props = {
   searchParams: { [key: string]: string | string[] | undefined }
@@ -7,19 +7,14 @@ type Props = {
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const appUrl = "https://kesimpulan.vercel.app";
-  
-  // 1. Ambil teks summary dari URL
-  const summary = searchParams.summary as string || "Ringkasan visual instan.";
-  
-  // 2. Bikin URL Gambar Dinamis (ini manggil api/og yang lu kasih)
+  const summary = (searchParams.summary as string) || "Ringkasan visual instan.";
   const imageUrl = `${appUrl}/api/og?summary=${encodeURIComponent(summary)}`;
 
-  // 3. Config Frame v2 (JSON Blob)
   const frameConfig = {
     version: "next",
-    imageUrl: imageUrl, // <--- GAMBARNYA JADI DINAMIS DISINI
+    imageUrl: imageUrl,
     button: {
-      title: "Buka Ringkasan",
+      title: "Buka App",
       action: {
         type: "launch_frame",
         name: "Kesimpulan",
@@ -31,9 +26,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 
   return {
-    title: "Kesimpulan: " + summary.substring(0, 50),
+    title: "Kesimpulan",
     openGraph: {
-      title: "Kesimpulan Visual",
+      title: "Kesimpulan: " + summary.substring(0, 50),
       description: summary,
       images: [imageUrl],
     },
@@ -43,7 +38,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
-// Tampilkan halaman Home biasa (User gak ngerasa bedanya)
 export default function SharePage() {
-  return <Home />;
+  return <MainApp />;
 }
