@@ -52,6 +52,15 @@ export async function POST(req: Request) {
       try {
         const supabase = createClient(supabaseUrl, supabaseKey);
 
+        // Ensure bucket exists and is public
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const hasBucket = buckets?.some((b) => b.name === STORAGE_BUCKET);
+        if (!hasBucket) {
+          await supabase.storage.createBucket(STORAGE_BUCKET, { public: true });
+        } else {
+          await supabase.storage.updateBucket(STORAGE_BUCKET, { public: true });
+        }
+
         const imagePath = `images/${Date.now()}-${Math.random().toString(16).slice(2)}.png`;
         const { error: imageError } = await supabase.storage
           .from(STORAGE_BUCKET)
