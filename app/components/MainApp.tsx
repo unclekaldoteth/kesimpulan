@@ -154,40 +154,30 @@ export default function Home() {
   };
 
   const handleShareResult = () => {
-  if (!mintedImageUrl) {
-    showToast("Silakan mint NFT dulu.", 'error');
-    return;
-  }
-  const mintedUri = mintedTokenUri || "";
-
-  const rawTopic = quizData?.summary || "topik ini";
-  const cleanTopic =
-    rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
-
-  const shareText = `Baru aja mint NFT ringkasan visual: "${cleanTopic}" ✨`;
-
-  const fullText = `${shareText}\n\nLihat gambarnya & metadata di sini 👇${mintedUri ? `\n${mintedUri}` : ""}`;
-
-  // Embed default kalau belum mint
-  const summaryForImage = (quizData?.summary as string)
-    .replace(/\n/g, " ")
-    .slice(0, 150);
-
-  // Embed langsung ke gambar NFT yang sudah dipublikasikan
-  const embedUrl = mintedImageUrl;
-
-  sdk.actions.openUrl(
-    `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`
-  );
-};
-
-  // CTA: ajak orang lain coba mini app dengan preview NFT yang baru dibuat
-  const handleShareCta = () => {
+    if (!mintedImageUrl) {
+      showToast("Silakan mint NFT dulu.", 'error');
+      return;
+    }
+    const mintedUri = mintedTokenUri || "";
     const miniAppUrl = "https://kesimpulan.vercel.app";
-    const embedUrl = mintedImageUrl || miniAppUrl;
-    const text = `Coba bikin ringkasan visual + mint NFT gratis di Mini App Kesimpulan.\n\nLangsung coba di sini: ${miniAppUrl}`;
+
+    const rawTopic = quizData?.summary || "topik ini";
+    const cleanTopic =
+      rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
+
+    // Deteksi cast URL yg ditempel user → embed sebagai quoted cast
+    const castMatch = inputText.match(/https?:\/\/(warpcast\.com|farcaster\.xyz)\/[^\s]+/i);
+    const castUrl = castMatch ? castMatch[0] : "";
+
+    const shareText = `Baru aja mint NFT ringkasan visual: "${cleanTopic}" ✨`;
+    const fullText = `${shareText}\n\nNFT: ${mintedUri || mintedImageUrl}\nCoba mini app ini gratis 👉 ${miniAppUrl}`;
+
+    // Susun embed: NFT image + optional quoted cast untuk konteks
+    const embeds = [`embeds[]=${encodeURIComponent(mintedImageUrl)}`];
+    if (castUrl) embeds.push(`embeds[]=${encodeURIComponent(castUrl)}`);
+
     sdk.actions.openUrl(
-      `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`
+      `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&${embeds.join('&')}`
     );
   };
 
@@ -433,10 +423,7 @@ const exportImage = async (): Promise<string | null> => {
 
                             {/* TOMBOL SHARE MUNCUL SETELAH MINT */}
                             {mintedImageUrl && (
-                              <>
-                                <button onClick={() => handleShareResult()} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil dengan NFT</button>
-                                <button onClick={handleShareCta} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-lg flex justify-center items-center gap-2"><Sparkles size={18} /> Ajak Teman Coba Mini App</button>
-                              </>
+                              <button onClick={() => handleShareResult()} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan NFT & Ajak Teman</button>
                             )}
                         </div>
                     )}
