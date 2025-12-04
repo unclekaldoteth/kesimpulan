@@ -67,6 +67,17 @@ export default function Home() {
                 connect({ connector: connectors[0] });
             }
 
+            // Prompt add to Farcaster + notifications on first open
+            const addKey = 'kesimpulan:addframe';
+            if (typeof window !== 'undefined' && !localStorage.getItem(addKey)) {
+              try {
+                await sdk.actions.addFrame();
+                localStorage.setItem(addKey, '1');
+              } catch (err) {
+                console.error('addFrame prompt failed', err);
+              }
+            }
+
             // Logic Share Extension (Magic Paste)
             const ctx = context as any;
             if (ctx.location && ctx.location.type === 'cast' && ctx.location.cast) {
