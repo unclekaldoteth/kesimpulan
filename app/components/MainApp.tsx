@@ -158,7 +158,6 @@ export default function Home() {
       showToast("Silakan mint NFT dulu.", 'error');
       return;
     }
-    const mintedUri = mintedTokenUri || "";
     const miniAppUrl = "https://kesimpulan.vercel.app";
 
     const rawTopic = quizData?.summary || "topik ini";
@@ -176,7 +175,7 @@ export default function Home() {
     if (castUrl) embeds.push(`embeds[]=${encodeURIComponent(castUrl)}`);
 
     sdk.actions.openUrl(
-      `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&${embeds.join('&')}`
+      `https://warpcast.com/~/compose?text=${encodeURIComponent(shareText)}&${embeds.join('&')}`
     );
   };
 
