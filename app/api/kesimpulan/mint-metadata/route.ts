@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
@@ -28,56 +30,60 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Data gambar tidak valid.' }, { status: 400 });
     }
 
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase belum dikonfigurasi.' }, { status: 500 });
-    }
-
     const [, base64] = imageDataUrl.split(',');
     if (!base64) {
       return NextResponse.json({ error: 'Format gambar tidak dikenali.' }, { status: 400 });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const imagePath = `images/${Date.now()}-${Math.random().toString(16).slice(2)}.png`;
-    const { error: imageError } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(imagePath, Buffer.from(base64, 'base64'), {
-        cacheControl: '3600',
-        contentType: 'image/png',
-      });
-
-    if (imageError) {
-      return NextResponse.json({ error: `Upload gambar gagal: ${imageError.message}` }, { status: 500 });
-    }
-
-    const { data: imageData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(imagePath);
-    const imageUrl = imageData.publicUrl;
-
+    // Build metadata once; we will either upload or fallback to data: URI
     const metadata = {
       name: 'Kesimpulan NFT',
       description: (summary as string | undefined)?.slice(0, 500) || 'Ringkasan visual dari Kesimpulan.',
-      image: imageUrl,
+      image: imageDataUrl, // default fallback
     };
 
-    const metadataPath = `metadata/${Date.now()}-${Math.random().toString(16).slice(2)}.json`;
-    const { error: metadataError } = await supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(metadataPath, JSON.stringify(metadata), {
-        cacheControl: '3600',
-        contentType: 'application/json',
-      });
+    // Try upload to Supabase if configured
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (metadataError) {
-      return NextResponse.json({ error: `Upload metadata gagal: ${metadataError.message}` }, { status: 500 });
+        const imagePath = `images/${Date.now()}-${Math.random().toString(16).slice(2)}.png`;
+        const { error: imageError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .upload(imagePath, Buffer.from(base64, 'base64'), {
+            cacheControl: '3600',
+            contentType: 'image/png',
+          });
+
+        if (imageError) throw imageError;
+
+        const { data: imageData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(imagePath);
+        metadata.image = imageData.publicUrl;
+
+        const metadataPath = `metadata/${Date.now()}-${Math.random().toString(16).slice(2)}.json`;
+        const { error: metadataError } = await supabase.storage
+          .from(STORAGE_BUCKET)
+          .upload(metadataPath, JSON.stringify(metadata), {
+            cacheControl: '3600',
+            contentType: 'application/json',
+          });
+
+        if (metadataError) throw metadataError;
+
+        const { data: metadataPublic } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(metadataPath);
+
+        return NextResponse.json({
+          tokenURI: metadataPublic.publicUrl,
+          imageUrl: metadata.image,
+        });
+      } catch (err: any) {
+        console.error('Supabase upload failed, falling back to data URI', err);
+      }
     }
 
-    const { data: metadataPublic } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(metadataPath);
-
-    return NextResponse.json({
-      tokenURI: metadataPublic.publicUrl,
-      imageUrl,
-    });
+    // Fallback: inline metadata via data URI so mint can proceed even without Supabase
+    const tokenURI = `data:application/json;utf8,${encodeURIComponent(JSON.stringify(metadata))}`;
+    return NextResponse.json({ tokenURI, imageUrl: metadata.image });
   } catch (error) {
     console.error('mint-metadata error', error);
     return NextResponse.json({ error: 'Gagal menyiapkan metadata.' }, { status: 500 });
