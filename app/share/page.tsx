@@ -8,7 +8,8 @@ type Props = {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const appUrl = "https://kesimpulan.vercel.app";
   const summary = (searchParams.summary as string) || "Ringkasan visual instan.";
-  const imageUrl = `${appUrl}/api/og?summary=${encodeURIComponent(summary)}`;
+  const nftImage = searchParams.image as string | undefined;
+  const imageUrl = nftImage || `${appUrl}/api/og?summary=${encodeURIComponent(summary)}`;
 
   const frameConfig = {
     version: "next",

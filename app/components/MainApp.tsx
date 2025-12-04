@@ -181,11 +181,14 @@ export default function Home() {
     .replace(/\n/g, " ")
     .slice(0, 150);
 
+  // Default embed (pre-mint) tetap ke share page dengan summary
   const defaultEmbedUrl =
     `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(summaryForImage)}`;
 
-  // Kalau sudah mint → pakai URL NFT image (dari Supabase / metadata)
-  const embedUrl = mintedImageUrl ?? defaultEmbedUrl;
+  // Kalau sudah mint → pakai halaman share dengan image NFT agar OG frame ambil gambar NFT
+  const embedUrl = mintedImageUrl
+    ? `https://kesimpulan.vercel.app/share?image=${encodeURIComponent(mintedImageUrl)}&summary=${encodeURIComponent(summaryForImage)}`
+    : defaultEmbedUrl;
 
   sdk.actions.openUrl(
     `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`
