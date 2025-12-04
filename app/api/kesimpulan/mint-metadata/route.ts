@@ -10,12 +10,14 @@ const DEFAULT_SUPABASE_KEY =
 const supabaseUrl =
   process.env.SUPABASE_URL ||
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  "";
+  DEFAULT_SUPABASE_URL;
 
 const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_KEY ||
-  "";
+  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  DEFAULT_SUPABASE_KEY;
 
 const STORAGE_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'kesimpulan-nft';
 

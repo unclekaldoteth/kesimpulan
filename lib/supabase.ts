@@ -1,17 +1,4 @@
 import { createClient } from '@supabase/supabase-js';
-import { http, createConfig } from 'wagmi';
-import { base } from 'wagmi/chains';
-import { farcasterFrame } from "@farcaster/frame-wagmi-connector";
-
-export const config = createConfig({
-  chains: [base],
-  transports: {
-    [base.id]: http(),
-  },
-  connectors: [
-    farcasterFrame(), // Ini connector ajaibnya
-  ],
-});
 
 // Ambil URL & Key, kalau kosong kasih string dummy biar gak crash pas build
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://esolvhnpvfoavgycrwgy.supabase.co";
