@@ -181,6 +181,16 @@ export default function Home() {
   );
 };
 
+  // CTA: ajak orang lain coba mini app dengan preview NFT yang baru dibuat
+  const handleShareCta = () => {
+    const miniAppUrl = "https://kesimpulan.vercel.app";
+    const embedUrl = mintedImageUrl || miniAppUrl;
+    const text = `Coba bikin ringkasan visual + mint NFT gratis di Mini App Kesimpulan.\n\nLangsung coba di sini: ${miniAppUrl}`;
+    sdk.actions.openUrl(
+      `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}&embeds[]=${encodeURIComponent(embedUrl)}`
+    );
+  };
+
 
   // Helper Download Image
   const downloadImage = async () => {
@@ -423,7 +433,10 @@ const exportImage = async (): Promise<string | null> => {
 
                             {/* TOMBOL SHARE MUNCUL SETELAH MINT */}
                             {mintedImageUrl && (
-                              <button onClick={() => handleShareResult()} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil dengan NFT</button>
+                              <>
+                                <button onClick={() => handleShareResult()} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil dengan NFT</button>
+                                <button onClick={handleShareCta} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-lg flex justify-center items-center gap-2"><Sparkles size={18} /> Ajak Teman Coba Mini App</button>
+                              </>
                             )}
                         </div>
                     )}
