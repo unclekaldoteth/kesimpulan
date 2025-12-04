@@ -416,8 +416,6 @@ const exportImage = async (): Promise<string | null> => {
                     {/* SHARE & MINT BUTTONS (Hanya Muncul Kalau Benar) */}
                     {isCorrect && (
                         <div className="flex flex-col gap-3 animate-pulse">
-                            <button onClick={() => handleShareResult()} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil</button>
-                            
                             {/* TOMBOL MINT (GRATIS) */}
                             <button 
                                 onClick={handleMint} 
@@ -426,6 +424,11 @@ const exportImage = async (): Promise<string | null> => {
                             >
                                 {isMinting ? <>Processing...</> : <><ImageIcon size={18} /> Mint as NFT (Free)</>}
                             </button>
+
+                            {/* TOMBOL SHARE MUNCUL SETELAH MINT */}
+                            {mintedImageUrl && (
+                              <button onClick={() => handleShareResult()} className="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 shadow-lg flex justify-center items-center gap-2"><Share2 size={18} /> Bagikan Hasil dengan NFT</button>
+                            )}
                         </div>
                     )}
                     
