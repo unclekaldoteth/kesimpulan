@@ -169,8 +169,7 @@ export default function Home() {
     const castMatch = inputText.match(/https?:\/\/(warpcast\.com|farcaster\.xyz)\/[^\s]+/i);
     const castUrl = castMatch ? castMatch[0] : "";
 
-    const shareText = `Baru aja mint NFT ringkasan visual: "${cleanTopic}" ✨`;
-    const fullText = `${shareText}\n\nNFT: ${mintedUri || mintedImageUrl}\nCoba mini app ini gratis 👉 ${miniAppUrl}`;
+    const shareText = `Baru mint NFT ringkasan visual: "${cleanTopic}" ✨\nCoba mini app gratis 👉 ${miniAppUrl}`;
 
     // Susun embed: NFT image + optional quoted cast untuk konteks
     const embeds = [`embeds[]=${encodeURIComponent(mintedImageUrl)}`];
