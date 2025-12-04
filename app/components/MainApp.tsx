@@ -433,7 +433,7 @@ const exportImage = async (): Promise<string | null> => {
                         </div>
                     )}
                     
-                    <button onClick={() => { setQuizData(null); setInputText(""); }} className="w-full py-4 rounded-xl text-sm font-bold text-gray-500 hover:text-white transition-colors bg-[#111] border border-white/5">Mulai Baru</button>
+                    <button onClick={() => { setQuizData(null); setInputText(""); setMintedImageUrl(null); }} className="w-full py-4 rounded-xl text-sm font-bold text-gray-500 hover:text-white transition-colors bg-[#111] border border-white/5">Mulai Baru</button>
                 </div>
             )}
           </div>

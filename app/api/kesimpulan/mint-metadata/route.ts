@@ -10,15 +10,12 @@ const DEFAULT_SUPABASE_KEY =
 const supabaseUrl =
   process.env.SUPABASE_URL ||
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  DEFAULT_SUPABASE_URL;
+  "";
 
 const supabaseKey =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   process.env.SUPABASE_SERVICE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_ANON_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  DEFAULT_SUPABASE_KEY;
+  "";
 
 const STORAGE_BUCKET = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || 'kesimpulan-nft';
 
@@ -47,61 +44,61 @@ export async function POST(req: Request) {
       image: imageDataUrl || placeholderImage, // default fallback; will be replaced if upload succeeds
     };
 
-    // Try upload to Supabase if configured
-    if (supabaseUrl && supabaseKey) {
-      try {
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
-        // Ensure bucket exists and is public
-        const { data: buckets } = await supabase.storage.listBuckets();
-        const hasBucket = buckets?.some((b) => b.name === STORAGE_BUCKET);
-        if (!hasBucket) {
-          await supabase.storage.createBucket(STORAGE_BUCKET, { public: true });
-        } else {
-          await supabase.storage.updateBucket(STORAGE_BUCKET, { public: true });
-        }
-
-        const imagePath = `images/${Date.now()}-${Math.random().toString(16).slice(2)}.png`;
-        const { error: imageError } = await supabase.storage
-          .from(STORAGE_BUCKET)
-          .upload(imagePath, Buffer.from(base64, 'base64'), {
-            cacheControl: '3600',
-            contentType: 'image/png',
-          });
-
-        if (imageError) throw imageError;
-
-        const { data: imageData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(imagePath);
-        metadata.image = imageData.publicUrl;
-
-        const metadataPath = `metadata/${Date.now()}-${Math.random().toString(16).slice(2)}.json`;
-        const { error: metadataError } = await supabase.storage
-          .from(STORAGE_BUCKET)
-          .upload(metadataPath, JSON.stringify(metadata), {
-            cacheControl: '3600',
-            contentType: 'application/json',
-          });
-
-        if (metadataError) throw metadataError;
-
-        const { data: metadataPublic } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(metadataPath);
-
-        return NextResponse.json({
-          tokenURI: metadataPublic.publicUrl,
-          imageUrl: metadata.image,
-        });
-      } catch (err: any) {
-        console.error('Supabase upload failed, falling back to data URI', err);
-      }
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Supabase URL/Service Key belum dikonfigurasi' }, { status: 500 });
     }
 
-    // Fallback: inline metadata via data URI with small payload (no base64 image to avoid oversized calldata)
-    const fallbackMetadata = {
-      ...metadata,
-      image: placeholderImage,
-    };
-    const tokenURI = `data:application/json;utf8,${encodeURIComponent(JSON.stringify(fallbackMetadata))}`;
-    return NextResponse.json({ tokenURI, imageUrl: placeholderImage });
+    // Try upload to Supabase; jika gagal, error agar user tahu (tidak fallback ke placeholder)
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Ensure bucket exists and is public
+    const { data: buckets, error: bucketListError } = await supabase.storage.listBuckets();
+    if (bucketListError) {
+      return NextResponse.json({ error: `Supabase bucket list gagal: ${bucketListError.message}` }, { status: 500 });
+    }
+    const hasBucket = buckets?.some((b) => b.name === STORAGE_BUCKET);
+    if (!hasBucket) {
+      const { error: createBucketError } = await supabase.storage.createBucket(STORAGE_BUCKET, { public: true });
+      if (createBucketError) {
+        return NextResponse.json({ error: `Supabase bucket create gagal: ${createBucketError.message}` }, { status: 500 });
+      }
+    } else {
+      await supabase.storage.updateBucket(STORAGE_BUCKET, { public: true }).catch(() => {});
+    }
+
+    const imagePath = `images/${Date.now()}-${Math.random().toString(16).slice(2)}.png`;
+    const { error: imageError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(imagePath, Buffer.from(base64, 'base64'), {
+        cacheControl: '3600',
+        contentType: 'image/png',
+      });
+
+    if (imageError) {
+      return NextResponse.json({ error: `Upload gambar gagal: ${imageError.message}` }, { status: 500 });
+    }
+
+    const { data: imageData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(imagePath);
+    metadata.image = imageData.publicUrl;
+
+    const metadataPath = `metadata/${Date.now()}-${Math.random().toString(16).slice(2)}.json`;
+    const { error: metadataError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(metadataPath, JSON.stringify(metadata), {
+        cacheControl: '3600',
+        contentType: 'application/json',
+      });
+
+    if (metadataError) {
+      return NextResponse.json({ error: `Upload metadata gagal: ${metadataError.message}` }, { status: 500 });
+    }
+
+    const { data: metadataPublic } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(metadataPath);
+
+    return NextResponse.json({
+      tokenURI: metadataPublic.publicUrl,
+      imageUrl: metadata.image,
+    });
   } catch (error) {
     console.error('mint-metadata error', error);
     return NextResponse.json({ error: 'Gagal menyiapkan metadata.' }, { status: 500 });
