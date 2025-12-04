@@ -16,7 +16,8 @@ import { useWriteContract } from 'wagmi';
 import kesimpulanAbi from '@/kesimpulan-miniapp/abi/kesimpulanNFT.json'; // nanti dari compile Hardhat
 
 const KESIMPULAN_NFT_ADDRESS =
-  process.env.NEXT_PUBLIC_KESIMPULAN_NFT_ADDRESS as `0x${string}` | undefined;
+  (process.env.NEXT_PUBLIC_KESIMPULAN_NFT_ADDRESS ||
+    '0xe14770Fc1a76163095aAFd3E6387B1264D3AF24f') as `0x${string}`;
 
 
 type TabType = 'quiz' | 'leaderboard' | 'profile';
