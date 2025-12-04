@@ -53,12 +53,6 @@ export default function Home() {
 
   // INIT FARCASTER & AUTO CONNECT WALLET
   useEffect(() => {
-    // restore minted image URL so share uses NFT preview
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem('kesimpulan:mintedImageUrl');
-      if (cached) setMintedImageUrl(cached);
-    }
-
     const initialize = async () => {
       try {
         await sdk.actions.ready();
@@ -159,6 +153,10 @@ export default function Home() {
   };
 
   const handleShareResult = () => {
+  if (!mintedImageUrl) {
+    showToast("Silakan mint NFT dulu.", 'error');
+    return;
+  }
   const rawTopic = quizData?.summary || "topik ini";
   const cleanTopic =
     rawTopic.split('.')[0].replace(/\n/g, " ").substring(0, 50) + "...";
@@ -181,14 +179,8 @@ export default function Home() {
     .replace(/\n/g, " ")
     .slice(0, 150);
 
-  // Default embed (pre-mint) tetap ke share page dengan summary
-  const defaultEmbedUrl =
-    `https://kesimpulan.vercel.app/share?summary=${encodeURIComponent(summaryForImage)}`;
-
-  // Kalau sudah mint → pakai halaman share dengan image NFT agar OG frame ambil gambar NFT
-  const embedUrl = mintedImageUrl
-    ? `https://kesimpulan.vercel.app/share?image=${encodeURIComponent(mintedImageUrl)}&summary=${encodeURIComponent(summaryForImage)}`
-    : defaultEmbedUrl;
+  // Embed hanya pakai NFT (karena sudah mint); fallback ke summary only tidak ditampilkan
+  const embedUrl = `https://kesimpulan.vercel.app/share?image=${encodeURIComponent(mintedImageUrl)}&summary=${encodeURIComponent(summaryForImage)}`;
 
   sdk.actions.openUrl(
     `https://warpcast.com/~/compose?text=${encodeURIComponent(fullText)}&embeds[]=${encodeURIComponent(embedUrl)}`
@@ -278,7 +270,6 @@ const exportImage = async (): Promise<string | null> => {
 
       // 4) Simpan URL image NFT untuk dipakai share
       setMintedImageUrl(imageUrl);
-      if (typeof window !== 'undefined') localStorage.setItem('kesimpulan:mintedImageUrl', imageUrl);
 
       // 5) (Opsional) tetap download ke device
       // const link = document.createElement('a');
